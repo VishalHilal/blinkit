@@ -145,7 +145,7 @@ const getOrderProductItems = async({
     return productList
 }
 
-//http://localhost:8080/api/order/webhook
+//https://blinkit-2f10.onrender.com/api/order/webhook
 export async function webhookStripe(request,response){
     const event = request.body;
     const endPointSecret = process.env.STRIPE_ENPOINT_WEBHOOK_SECRET_KEY
