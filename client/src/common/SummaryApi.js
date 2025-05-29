@@ -1,4 +1,4 @@
-export const baseURL = "https://blinkit-2f10.onrender.com"
+export const baseURL = "http://localhost:3000"
 
 const SummaryApi = {
     register : {

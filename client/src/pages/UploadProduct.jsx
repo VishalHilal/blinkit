@@ -206,6 +206,7 @@ const UploadProduct = () => {
   // Function to parse RTF content
   const parseRtfContent = async (rtfContent) => {
     try {
+        console.log('=== Starting RTF Parsing Process ===')
         console.log('Raw RTF content:', rtfContent)
 
         // Remove RTF control characters and get plain text
@@ -215,10 +216,11 @@ const UploadProduct = () => {
             .replace(/\\tab/g, '\t')
             .trim()
 
-        console.log('Cleaned plain text:', plainText)
+        console.log('=== Cleaned Plain Text ===')
+        console.log(plainText)
 
-        // Define section names and their corresponding form field mappings
-        const sectionMappings = {
+        // Define base section mappings
+        const baseSectionMappings = {
             'Product Details': {
                 type: 'header',
                 fields: ['name', 'description'],
@@ -229,59 +231,119 @@ const UploadProduct = () => {
                 field: 'description',
                 descriptionOnly: true
             },
-            'Key Features': {
-                type: 'array',
-                field: 'keyFeatures'
-            },
-            'Atta Type': {
+            'Unit': {
                 type: 'field',
-                field: 'type'
+                field: 'Unit'
+            },
+            'Type': {
+                type: 'field',
+                field: 'Type'
             },
             'Shelf Life': {
                 type: 'field',
-                field: 'shelfLife'
-            },
-            'Manufacturer Details': {
-                type: 'field',
-                field: 'manufacturerDetails'
-            },
-            'Marketed By': {
-                type: 'field',
-                field: 'marketedBy'
+                field: 'Shelf Life'
             },
             'Country Of Origin': {
                 type: 'field',
-                field: 'countryOfOrigin'
+                field: 'Country Of Origin'
             },
             'FSSAI License': {
                 type: 'field',
-                field: 'fssaiLicense'
+                field: 'FSSAILicense'
             },
             'Customer Care Details': {
                 type: 'object',
-                field: 'customerCare',
+                field: 'Customer Care Details',
                 subFields: ['email', 'phone', 'address']
             },
             'Return Policy': {
                 type: 'field',
-                field: 'returnPolicy'
+                field: 'Return Policy'
             },
             'Seller': {
                 type: 'field',
-                field: 'seller'
+                field: 'Seller'
             },
             'Seller FSSAI': {
                 type: 'field',
-                field: 'sellerFssai'
+                field: 'Seller FSSAI'
             },
             'Disclaimer': {
                 type: 'field',
-                field: 'disclaimer'
+                field: 'disclaimer',
+                isMultiline: true
             }
         }
 
-        // Create a regex pattern to match any of the section names
-        const sectionPattern = new RegExp(`(${Object.keys(sectionMappings).join('|')})`, 'g')
+        // Function to detect section headers in the text
+        const detectSections = (text) => {
+            // Split text into lines and find potential section headers
+            const lines = text.split('\n')
+            const sections = new Set()
+            
+            lines.forEach((line, index) => {
+                // Skip empty lines
+                if (!line.trim()) return
+                
+                // Check if this line is followed by empty line(s) and content
+                const nextLine = lines[index + 1]
+                if (nextLine && !nextLine.trim()) {
+                    // This might be a section header
+                    sections.add(line.trim())
+                }
+            })
+            
+            return Array.from(sections)
+        }
+
+        // Detect all sections in the text
+        const detectedSections = detectSections(plainText)
+        console.log('=== Detected Sections ===')
+        console.log('Found sections:', detectedSections)
+
+        // Create dynamic section mappings for new sections
+        const dynamicSectionMappings = { ...baseSectionMappings }
+        
+        detectedSections.forEach(section => {
+            const cleaned = section.trim()
+        
+            // Only create mappings for reasonable section headers
+            if (
+                !baseSectionMappings[cleaned] &&
+                cleaned.length < 80 &&
+                /^[A-Za-z0-9\s\-()&]+$/.test(cleaned)
+            ) {
+                const normalizedField = cleaned.toLowerCase().replace(/[^a-z0-9]+/g, '')
+                dynamicSectionMappings[cleaned] = {
+                    type: 'field',
+                    field: normalizedField
+                }
+                console.log(`Created mapping for new section: "${cleaned}" -> "${normalizedField}"`)
+            } else {
+                console.warn(`❌ Skipped invalid section name: "${cleaned}"`)
+            }
+        })
+        
+
+        console.log('=== Final Section Mappings ===')
+        console.log('Available sections:', Object.keys(dynamicSectionMappings))
+
+        // Filter out invalid or too-long section names before building the regex
+const validSectionNames = Object.keys(dynamicSectionMappings).filter(name => {
+    return name.length < 80 && /^[A-Za-z0-9\s\-()&]+$/.test(name)  // Only include valid, reasonable names
+})
+
+// Create a regex pattern to match only valid section names
+const sectionPattern = new RegExp(`(${validSectionNames.join('|')})`, 'g')
+
+
+        // Find all section matches
+        const matches = [...plainText.matchAll(sectionPattern)]
+        console.log('=== Found Sections ===')
+        console.log('Number of sections found:', matches.length)
+        matches.forEach((match, index) => {
+            console.log(`${index + 1}. Section: "${match[0]}" at position ${match.index}`)
+        })
 
         // Initialize product object with default structure
         const product = {
@@ -294,146 +356,139 @@ const UploadProduct = () => {
             category: [],
             subCategory: [],
             image: [],
-            more_details: {
-                keyFeatures: [],
-                type: '',
-                shelfLife: '',
-                manufacturerDetails: '',
-                marketedBy: '',
-                countryOfOrigin: '',
-                fssaiLicense: '',
-                customerCare: {
-                    email: '',
-                    phone: '',
-                    address: ''
-                },
-                returnPolicy: '',
-                seller: '',
-                sellerFssai: '',
-                disclaimer: ''
-            }
+            more_details: {}
         }
 
         // Create a Set to track found fields
         const foundSections = new Set(['name', 'description', 'unit', 'stock', 'price', 'discount'])
 
-        // Find all section matches
-        const matches = [...plainText.matchAll(sectionPattern)]
-        
+        console.log('=== Processing Sections ===')
         // Process each section
         matches.forEach((match, index) => {
-            const sectionName = match[0]
+            const sectionName = match[0] // the real discription is here
+            // console.log("the section name of real",sectionName)
             const startIndex = match.index
             const endIndex = index < matches.length - 1 ? matches[index + 1].index : plainText.length
             let content = plainText.slice(startIndex + sectionName.length, endIndex).trim()
+            // console.log("the disclaimer content",content)
             
-            const sectionConfig = sectionMappings[sectionName]
-            if (!sectionConfig) return
+            console.log(`\nProcessing section: "${sectionName}"`)
+            console.log('Content:', content)
+
+            const sectionConfig = dynamicSectionMappings[sectionName]
+            console.log('############################ long  name of section' ,sectionConfig)
+            if (!sectionConfig) {
+                console.log('No mapping found for section:', sectionName)
+                return
+            }
 
             // Add section to found fields
-            foundSections.add(sectionConfig.field)
+            if (sectionConfig.field) {
+                foundSections.add(sectionConfig.field)
+                console.log('Added to found fields smaller:', sectionConfig.field)
+            }
+
+            // Initialize the field in more_details if it's a new section
+            if (sectionConfig.type === 'field' && !product.more_details[sectionConfig.field]) {
+                product.more_details[sectionConfig.field] = sectionName;
+                console.log("the field is new &&&&&&&&&&&&&&&&&",product.more_details[sectionConfig.field])
+            }
 
             switch(sectionConfig.type) {
                 case 'header':
-                    // For Product Details section, try to extract name and description
+                    console.log('Processing header section')
                     const lines = content.split('\n').filter(line => line.trim())
                     if (lines.length > 0) {
                         product.name = lines[0]
-                        // Only set description from Product Details if there's no dedicated Description section
+                        console.log('Set name:', product.name)
                         if (!sectionConfig.descriptionOnly && lines.length > 1) {
                             const descriptionContent = lines.slice(1).join('\n').trim()
                             if (descriptionContent && !product.description) {
                                 product.description = descriptionContent
+                                console.log('Set description:', product.description)
                             }
                         }
                     }
                     break
 
-                case 'array':
-                    // For sections that should be arrays (like Key Features)
-                    product.more_details[sectionConfig.field] = content.split('\n')
-                        .filter(line => line.trim())
-                        .map(line => line.replace(/^[•\-\*]\s*/, '').trim())
+                case 'field':
+                    console.log('Processing field section:', sectionConfig.field)
+                    if (sectionConfig.field === 'unit') {
+                        product[sectionConfig.field] = content.trim()
+                        console.log('Set unit:', product[sectionConfig.field])
+                    } else if (sectionConfig.field === 'description') {
+                        // Special handling for description field
+                        if (content) {
+                            // If we find a description section, always set it to the main description field
+                            product.description = content.trim()
+                            console.log('Set main description:', product.description)
+                        }
+                    } else if (sectionConfig.field === 'disclaimer') {
+                        // Handle disclaimer like other fields
+                        product.more_details[sectionConfig.field] = content
+                            .split('\n')
+                            .map(line => line.trim())
+                            .filter(line => line)
+                            .join('\n')
+                        console.log('Set disclaimer:', product.more_details[sectionConfig.field])
+                    } else {
+                        // For all other fields
+                        product.more_details[sectionConfig.field] = content.trim()
+                        console.log(`Set ${sectionName}:`, product.more_details[sectionConfig.field])
+                    }
                     break
 
                 case 'object':
-                    // For sections with sub-fields (like Customer Care)
+                    console.log('Processing object section:', sectionConfig.field)
+                    if (!product.more_details[sectionConfig.field]) {
+                        product.more_details[sectionConfig.field] = {}
+                    }
                     const subFields = sectionConfig.subFields
                     subFields.forEach(field => {
                         const regex = new RegExp(`${field}:\\s*(.+?)(?=\\n|$)`, 'i')
                         const match = content.match(regex)
                         if (match) {
                             product.more_details[sectionConfig.field][field] = match[1].trim()
+                            console.log(`Set ${field}:`, product.more_details[sectionConfig.field][field])
                         }
                     })
-                    // Auto-fill email if not present
-                    if (sectionName === 'Customer Care Details' && !product.more_details.customerCare.email) {
-                        product.more_details.customerCare.email = 'info@blinkit.com'
-                    }
-                    break
-
-                case 'field':
-                    // For simple field sections
-                    if (sectionConfig.field === 'description') {
-                        // Special handling for description field
-                        const descriptionContent = content.split('\n')
-                            .filter(line => line.trim())
-                            .join('\n')
-                            .trim()
-                        
-                        if (descriptionContent) {
-                            // If we already have a description, append to it
-                            if (product.description) {
-                                product.description = `${product.description}\n\n${descriptionContent}`
-                            } else {
-                                product.description = descriptionContent
-                            }
-                        }
-                    } else if (sectionConfig.field === 'unit') {
-                        // Process unit content
-                        const units = ['kg', 'g', 'ml', 'l', 'cm', 'm', 'piece', 'pack', 'box', 'bottle', 'jar', 'can']
-                        let processedContent = content
-                        units.forEach(unit => {
-                            const regex = new RegExp(`(\\d+\\s*${unit})`, 'gi')
-                            processedContent = processedContent.replace(regex, '$1\n')
-                        })
-                        product[sectionConfig.field] = processedContent.trim()
-                    } else if (sectionConfig.field === 'type') {
-                        // Handle type field and try to set category
-                        product.more_details[sectionConfig.field] = content
-                        const category = allCategory.find(cat => 
-                            cat.name.toLowerCase().includes('groceries') || 
-                            cat.name.toLowerCase().includes('food')
-                        )
-                        if (category) {
-                            product.category = [category]
-                        }
-                    } else {
-                        // For other fields, store in more_details
-                        product.more_details[sectionConfig.field] = content
-                    }
                     break
             }
         })
 
         // Clean up description
         if (product.description) {
-            // Remove any extra newlines and normalize spaces
             product.description = product.description
+                .split('\n')
+                .map(line => line.trim())
+                .filter(line => line)
+                .join('\n\n')  // Use double newlines for better readability
                 .replace(/\n{3,}/g, '\n\n')  // Replace 3 or more newlines with 2
-                .replace(/\s{2,}/g, ' ')     // Replace multiple spaces with single space
                 .trim()
+            console.log('=== Final Cleaned Description ===')
+            console.log(product.description)
         }
 
-        // Try to set name from type if not set
-        if (!product.name && product.more_details.type) {
-            product.name = product.more_details.type
+        // Clean up disclaimer
+        if (product.more_details.disclaimer) {
+            product.more_details.disclaimer = product.more_details.disclaimer
+                .split('\n')
+                .map(line => line.trim())
+                .filter(line => line)
+                .join('\n\n')  // Use double newlines for better readability
+                .replace(/\n{3,}/g, '\n\n')  // Replace 3 or more newlines with 2
+                .trim()
+            console.log('=== Final Cleaned Disclaimer ===')
+            console.log(product.more_details.disclaimer)
         }
 
-        // Update found fields state
-        setFoundFields(foundSections)
+        // Update found fields state        setFoundFields(foundSections)
+        console.log('=== Final Found Fields ===')
+        console.log(Array.from(foundSections))
 
-        console.log('Final parsed product:', product)
+        console.log('=== Final Parsed Product ===')
+        console.log(JSON.stringify(product, null, 2))
+
         return product
     } catch (error) {
         console.error('Error parsing RTF:', error)
@@ -452,21 +507,44 @@ const UploadProduct = () => {
 
     setRtfFile(file)
     setStatus('Reading RTF file...')
+    console.log('=== Starting RTF File Upload ===')
+    console.log('File name:', file.name)
 
     try {
         const reader = new FileReader()
         reader.onload = async (e) => {
             try {
-                console.log('File loaded, starting to parse...')
+                console.log('=== File Loaded Successfully ===')
                 const productData = await parseRtfContent(e.target.result)
-                console.log('Parsing complete, updating form...')
+                console.log('=== Parsing Complete ===')
                 
                 // Reset select states
                 setSelectCategory("")
                 setSelectSubCategory("")
 
-                // Update form data
-                setData({
+                // Create a new more_details object with all the parsed fields
+                const moreDetails = {
+                    ...productData.more_details,
+                    // Ensure all fields from foundFields are initialized
+                    keyfeatures: productData.more_details.keyfeatures || '',
+                    type: productData.more_details.type || '',
+                    concern: productData.more_details.concern || '',
+                    shelfLife: productData.more_details.shelfLife || '',
+                    manufacturerdetails: productData.more_details.manufacturerdetails || '',
+                    marketedby: productData.more_details.marketedby || '',
+                    countryOfOrigin: productData.more_details.countryOfOrigin || '',
+                    customerCare: {
+                        email: productData.more_details.customerCare?.email || '',
+                        phone: productData.more_details.customerCare?.phone || '',
+                        address: productData.more_details.customerCare?.address || ''
+                    },
+                    returnPolicy: productData.more_details.returnPolicy || '',
+                    seller: productData.more_details.seller || '',
+                    disclaimer: productData.more_details.disclaimer || ''
+                }
+
+                // Update form data with all parsed information
+                const newFormData = {
                     name: productData.name || '',
                     description: productData.description || '',
                     unit: productData.unit || '',
@@ -476,33 +554,52 @@ const UploadProduct = () => {
                     category: productData.category || [],
                     subCategory: productData.subCategory || [],
                     image: productData.image || [],
-                    more_details: productData.more_details || {}
+                    more_details: moreDetails
+                }
+
+                // Update the form state
+                setData(newFormData)
+
+                // Update found fields to include all fields that have data
+                const newFoundFields = new Set([
+                    'name', 
+                    'description', 
+                    'unit', 
+                    'stock', 
+                    'price', 
+                    'discount'
+                ])
+
+                // Add all fields that have data to foundFields
+                Object.entries(moreDetails).forEach(([key, value]) => {
+                    if (key === 'customerCare') {
+                        if (Object.values(value || {}).some(v => v)) {
+                            newFoundFields.add('customerCare')
+                        }
+                    } else if (value) {
+                        newFoundFields.add(key)
+                    }
                 })
 
-                console.log('Form data updated:', {
-                    name: productData.name,
-                    description: productData.description,
-                    unit: productData.unit,
-                    stock: productData.stock,
-                    price: productData.price,
-                    discount: productData.discount,
-                    category: productData.category,
-                    subCategory: productData.subCategory,
-                    image: productData.image,
-                    more_details: productData.more_details
-                })
+                setFoundFields(newFoundFields)
+
+                console.log('=== Form Data Updated ===')
+                console.log('Updated form data:', newFormData)
+                console.log('Updated found fields:', Array.from(newFoundFields))
 
                 setStatus('RTF file processed successfully')
                 toast.success('RTF file processed successfully')
             } catch (error) {
-                console.error('Error processing RTF:', error)
+                console.error('=== Error Processing RTF ===')
+                console.error(error)
                 toast.error('Failed to process RTF file')
                 setStatus('Failed to process RTF file')
             }
         }
         reader.readAsText(file)
     } catch (error) {
-        console.error('Error reading RTF:', error)
+        console.error('=== Error Reading RTF ===')
+        console.error(error)
         toast.error('Error reading RTF file')
         setStatus('Error reading RTF file')
     }
@@ -531,6 +628,149 @@ const UploadProduct = () => {
   // useEffect(()=>{
   //   successAlert("Upload successfully")
   // },[])
+
+  // Update the form rendering to show all fields that have data
+  const renderAdditionalFields = () => {
+    return Object.entries(data?.more_details || {})
+        .filter(([key, value]) => {
+            // For customerCare, check if any subfield has data
+            if (key === 'customerCare') {
+                return Object.values(value || {}).some(v => v)
+            }
+            // For other fields, check if the field has data and is in foundFields
+            return value && foundFields.has(key)
+        })
+        .map(([key, value]) => {
+            if (key === 'customerCare') {
+                return Object.entries(value || {})
+                    .filter(([_, v]) => v)
+                    .map(([subKey, subValue]) => (
+                        <div key={`customerCare-${subKey}`} className='grid gap-1 relative'>
+                            <div className='flex justify-between items-center'>
+                                <label className='font-medium'>Customer Care {subKey}</label>
+                                <button
+                                    type='button'
+                                    onClick={() => handleDeleteField(`customerCare.${subKey}`)}
+                                    className='text-red-500 hover:text-red-700'
+                                >
+                                    <IoClose size={20} />
+                                </button>
+                            </div>
+                            <input 
+                                type='text'
+                                value={subValue}
+                                onChange={(e) => {
+                                    setData(prev => ({
+                                        ...prev,
+                                        more_details: {
+                                            ...prev.more_details,
+                                            customerCare: {
+                                                ...prev.more_details.customerCare,
+                                                [subKey]: e.target.value
+                                            }
+                                        }
+                                    }))
+                                }}
+                                className='bg-blue-50 p-2 outline-none border focus-within:border-primary-200 rounded'
+                            />
+                        </div>
+                    ))
+            }
+            // For array fields like keyfeatures
+            if (Array.isArray(value)) {
+                return (
+                    <div key={key} className='grid gap-1 relative'>
+                        <div className='flex justify-between items-center'>
+                            <label className='font-medium'>{key.replace(/([A-Z])/g, ' $1').trim()}</label>
+                            <button
+                                type='button'
+                                onClick={() => handleDeleteField(key)}
+                                className='text-red-500 hover:text-red-700'
+                            >
+                                <IoClose size={20} />
+                            </button>
+                        </div>
+                        <textarea 
+                            value={value.join('\n')}
+                            onChange={(e) => {
+                                setData(prev => ({
+                                    ...prev,
+                                    more_details: {
+                                        ...prev.more_details,
+                                        [key]: e.target.value.split('\n').filter(line => line.trim())
+                                    }
+                                }))
+                            }}
+                            className='bg-blue-50 p-2 outline-none border focus-within:border-primary-200 rounded resize-none'
+                            rows={4}
+                        />
+                    </div>
+                )
+            }
+            // For regular text fields
+            if (key === 'disclaimer') {
+                // Special handling for disclaimer
+                return (
+                    <div key={key} className='grid gap-1 relative'>
+                        <div className='flex justify-between items-center'>
+                            <label className='font-medium'>Disclaimer</label>
+                            <button
+                                type='button'
+                                onClick={() => handleDeleteField(key)}
+                                className='text-red-500 hover:text-red-700'
+                            >
+                                <IoClose size={20} />
+                            </button>
+                        </div>
+                        <textarea 
+                            value={value}
+                            onChange={(e) => {
+                                setData(prev => ({
+                                    ...prev,
+                                    more_details: {
+                                        ...prev.more_details,
+                                        [key]: e.target.value
+                                    }
+                                }))
+                            }}
+                            className='bg-blue-50 p-2 outline-none border focus-within:border-primary-200 rounded resize-none'
+                            rows={4}
+                            style={{ whiteSpace: 'pre-wrap' }}  // Preserve whitespace and line breaks
+                        />
+                    </div>
+                )
+            }
+            return (
+                <div key={key} className='grid gap-1 relative'>
+                    <div className='flex justify-between items-center'>
+                        <label className='font-medium'>{key.replace(/([A-Z])/g, ' $1').trim()}</label>
+                        <button
+                            type='button'
+                            onClick={() => handleDeleteField(key)}
+                            className='text-red-500 hover:text-red-700'
+                        >
+                            <IoClose size={20} />
+                        </button>
+                    </div>
+                    <textarea 
+                        value={value}
+                        onChange={(e) => {
+                            setData(prev => ({
+                                ...prev,
+                                more_details: {
+                                    ...prev.more_details,
+                                    [key]: e.target.value
+                                }
+                            }))
+                        }}
+                        className='bg-blue-50 p-2 outline-none border focus-within:border-primary-200 rounded resize-none'
+                        rows={key === 'returnPolicy' || key === 'disclaimer' ? 4 : 1}
+                    />
+                </div>
+            )
+        })
+  }
+
   return (
     <section className=''>
         <div className='p-2   bg-white shadow-md flex items-center justify-between'>
@@ -902,41 +1142,8 @@ Gram Flour important vitamins...`}
                     </div>
                 )}
 
-                {/* Only show additional fields that were found in RTF or manually added */}
-                {Object.keys(data?.more_details || {})
-                    .filter(k => foundFields.has(k.toLowerCase().replace(/\s+/g, '')))
-                    .map((k, index) => (
-                        <div key={`more-details-${k}-${index}`} className='grid gap-1 relative'>
-                            <div className='flex justify-between items-center'>
-                                <label htmlFor={k} className='font-medium'>{k}</label>
-                                <button
-                                    type='button'
-                                    onClick={() => handleDeleteField(k)}
-                                    className='text-red-500 hover:text-red-700'
-                                >
-                                    <IoClose size={20} />
-                                </button>
-                            </div>
-                            <input 
-                                id={k}
-                                type='text'
-                                value={data?.more_details[k]}
-                                onChange={(e) => {
-                                    const value = e.target.value 
-                                    setData((preve) => ({
-                                        ...preve,
-                                        more_details: {
-                                            ...preve.more_details,
-                                            [k]: value
-                                        }
-                                    }))
-                                }}
-                                required
-                                className='bg-blue-50 p-2 outline-none border focus-within:border-primary-200 rounded'
-                            />
-                        </div>
-                    ))
-                }
+                {/* Render additional fields */}
+                {renderAdditionalFields()}
 
                 <div onClick={()=>setOpenAddField(true)} className='hover:bg-primary-200 bg-white py-1 px-3 w-32 text-center font-semibold border border-primary-200 hover:text-neutral-900 cursor-pointer rounded'>
                     Add Fields
