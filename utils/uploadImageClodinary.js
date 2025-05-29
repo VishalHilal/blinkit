@@ -30,7 +30,7 @@ const uploadImageClodinary = async(image, name = '') => {
 
         const uploadResult = await new Promise((resolve, reject) => {
             cloudinary.uploader.upload_stream({
-                folder: "binkeyit",
+                folder: "blinkeet",
                 public_id: safeName,
                 resource_type: "auto",
                 allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],

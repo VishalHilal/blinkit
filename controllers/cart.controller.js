@@ -114,25 +114,55 @@ export const updateCartItemQtyController = async(request,response)=>{
 
 export const deleteCartItemQtyController = async(request,response)=>{
     try {
-      const userId = request.userId // middleware
-      const { _id } = request.body 
-      
-      if(!_id){
-        return response.status(400).json({
-            message : "Provide _id",
-            error : true,
-            success : false
+        const userId = request.userId
+        const { _id, clearAll } = request.body
+
+        if (clearAll) {
+            // Clear all cart items for the user
+            await CartProductModel.deleteMany({ userId: userId });
+            await UserModel.updateOne(
+                { _id: userId },
+                { $set: { shopping_cart: [] } }
+            );
+
+            return response.json({
+                message: "Cart cleared successfully",
+                error: false,
+                success: true
+            });
+        }
+
+        if(!_id){
+            return response.status(402).json({
+                message : "Provide cart item id",
+                error : true,
+                success : false
+            })
+        }
+
+        const deleteCartItem = await CartProductModel.deleteOne({
+            _id : _id,
+            userId : userId
         })
-      }
 
-      const deleteCartItem  = await CartProductModel.deleteOne({_id : _id, userId : userId })
+        if(deleteCartItem.deletedCount === 0){
+            return response.status(400).json({
+                message : "Cart item not found",
+                error : true,
+                success : false
+            })
+        }
 
-      return response.json({
-        message : "Item remove",
-        error : false,
-        success : true,
-        data : deleteCartItem
-      })
+        const updateUserCart = await UserModel.updateOne(
+            { _id : userId },
+            { $pull : { shopping_cart : _id }}
+        )
+
+        return response.json({
+            message : "Cart item deleted successfully",
+            error : false,
+            success : true
+        })
 
     } catch (error) {
         return response.status(500).json({

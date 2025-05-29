@@ -47,11 +47,30 @@ const UploadProduct = () => {
   const handleChange = (e)=>{
     const { name, value} = e.target 
 
+    // Special handling for price to maintain exact value
+    if (name === 'price') {
+        // Remove any non-numeric characters except decimal point
+        const cleanValue = value.replace(/[^0-9.]/g, '');
+        // Ensure only one decimal point
+        const parts = cleanValue.split('.');
+        const formattedValue = parts.length > 1 ? 
+            `${parts[0]}.${parts.slice(1).join('')}` : 
+            cleanValue;
+        
+        setData((preve)=>{
+            return{
+                ...preve,
+                [name]: formattedValue
+            }
+        });
+        return;
+    }
+
     setData((preve)=>{
-      return{
-          ...preve,
-          [name]  : value
-      }
+        return{
+            ...preve,
+            [name]  : value
+        }
     })
   }
 
@@ -1136,7 +1155,9 @@ Gram Flour important vitamins...`}
                         </div>
                         <input 
                             id='price'
-                            type='number'
+                            type='text'
+                            inputMode='decimal'
+                            pattern='[0-9]*\.?[0-9]*'
                             placeholder='Enter product price'
                             name='price'
                             value={data.price}

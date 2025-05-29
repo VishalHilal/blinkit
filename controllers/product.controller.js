@@ -55,7 +55,6 @@ export const createProductController = async(request,response)=>{
 
 export const getProductController = async(request,response)=>{
     try {
-        
         let { page, limit, search } = request.body 
 
         if(!page){
@@ -66,32 +65,69 @@ export const getProductController = async(request,response)=>{
             limit = 10
         }
 
-        const query = search ? {
-            $text : {
-                $search : search
+        // Only use text search if search string is not empty and has at least 2 characters
+        const query = search && search.trim().length >= 2 ? {
+            $text: {
+                $search: search.trim()
             }
         } : {}
 
         const skip = (page - 1) * limit
 
-        const [data,totalCount] = await Promise.all([
-            ProductModel.find(query).sort({createdAt : -1 }).skip(skip).limit(limit).populate('category subCategory'),
-            ProductModel.countDocuments(query)
-        ])
+        try {
+            const [data, totalCount] = await Promise.all([
+                ProductModel.find(query)
+                    .sort(search ? { score: { $meta: "textScore" } } : { createdAt: -1 })
+                    .skip(skip)
+                    .limit(limit)
+                    .populate('category subCategory'),
+                ProductModel.countDocuments(query)
+            ])
 
-        return response.json({
-            message : "Product data",
-            error : false,
-            success : true,
-            totalCount : totalCount,
-            totalNoPage : Math.ceil( totalCount / limit),
-            data : data
-        })
+            return response.json({
+                message: "Product data",
+                error: false,
+                success: true,
+                totalCount: totalCount,
+                totalNoPage: Math.ceil(totalCount / limit),
+                data: data
+            })
+        } catch (dbError) {
+            // If text search fails, fall back to regex search
+            if (search && search.trim().length >= 2) {
+                const regexQuery = {
+                    $or: [
+                        { name: { $regex: search.trim(), $options: 'i' } },
+                        { description: { $regex: search.trim(), $options: 'i' } }
+                    ]
+                }
+                
+                const [data, totalCount] = await Promise.all([
+                    ProductModel.find(regexQuery)
+                        .sort({ createdAt: -1 })
+                        .skip(skip)
+                        .limit(limit)
+                        .populate('category subCategory'),
+                    ProductModel.countDocuments(regexQuery)
+                ])
+
+                return response.json({
+                    message: "Product data",
+                    error: false,
+                    success: true,
+                    totalCount: totalCount,
+                    totalNoPage: Math.ceil(totalCount / limit),
+                    data: data
+                })
+            }
+            throw dbError
+        }
     } catch (error) {
+        console.error('Product search error:', error)
         return response.status(500).json({
-            message : error.message || error,
-            error : true,
-            success : false
+            message: error.message || "Error searching products",
+            error: true,
+            success: false
         })
     }
 }
@@ -267,45 +303,85 @@ export const deleteProductDetails = async(request,response)=>{
 //search product
 export const searchProduct = async(request,response)=>{
     try {
-        let { search, page , limit } = request.body 
+        let { search, page, limit } = request.body 
 
         if(!page){
             page = 1
         }
         if(!limit){
-            limit  = 10
+            limit = 10
         }
 
-        const query = search ? {
-            $text : {
-                $search : search
+        // Only use text search if search string is not empty and has at least 2 characters
+        const searchString = search ? search.trim() : ''
+        const isTextSearch = searchString.length >= 2
+        const query = isTextSearch ? {
+            $text: {
+                $search: searchString
             }
         } : {}
 
-        const skip = ( page - 1) * limit
+        const skip = (page - 1) * limit
 
-        const [data,dataCount] = await Promise.all([
-            ProductModel.find(query).sort({ createdAt  : -1 }).skip(skip).limit(limit).populate('category subCategory'),
-            ProductModel.countDocuments(query)
-        ])
+        try {
+            const [data, dataCount] = await Promise.all([
+                ProductModel.find(query)
+                    .sort(isTextSearch ? { score: { $meta: "textScore" } } : { createdAt: -1 })
+                    .select(isTextSearch ? { score: { $meta: "textScore" } } : {})
+                    .skip(skip)
+                    .limit(limit)
+                    .populate('category subCategory'),
+                ProductModel.countDocuments(query)
+            ])
 
-        return response.json({
-            message : "Product data",
-            error : false,
-            success : true,
-            data : data,
-            totalCount :dataCount,
-            totalPage : Math.ceil(dataCount/limit),
-            page : page,
-            limit : limit 
-        })
+            return response.json({
+                message: "Product data",
+                error: false,
+                success: true,
+                data: data,
+                totalCount: dataCount,
+                totalPage: Math.ceil(dataCount/limit),
+                page: page,
+                limit: limit
+            })
+        } catch (dbError) {
+            // If text search fails, fall back to regex search
+            if (isTextSearch) {
+                const regexQuery = {
+                    $or: [
+                        { name: { $regex: searchString, $options: 'i' } },
+                        { description: { $regex: searchString, $options: 'i' } }
+                    ]
+                }
+                
+                const [data, dataCount] = await Promise.all([
+                    ProductModel.find(regexQuery)
+                        .sort({ createdAt: -1 })
+                        .skip(skip)
+                        .limit(limit)
+                        .populate('category subCategory'),
+                    ProductModel.countDocuments(regexQuery)
+                ])
 
-
+                return response.json({
+                    message: "Product data",
+                    error: false,
+                    success: true,
+                    data: data,
+                    totalCount: dataCount,
+                    totalPage: Math.ceil(dataCount/limit),
+                    page: page,
+                    limit: limit
+                })
+            }
+            throw dbError
+        }
     } catch (error) {
+        console.error('Product search error:', error)
         return response.status(500).json({
-            message : error.message || error,
-            error : true,
-            success : false
+            message: error.message || "Error searching products",
+            error: true,
+            success: false
         })
     }
 }

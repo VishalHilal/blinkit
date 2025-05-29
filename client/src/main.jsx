@@ -6,11 +6,14 @@ import { RouterProvider } from 'react-router-dom'
 import router from './route/index'
 import { Provider } from 'react-redux'
 import { store } from './store/store.js'
+import StripeProvider from './provider/StripeProvider'
 
 createRoot(document.getElementById('root')).render(
   // <StrictMode>
   <Provider store={store}>
-    <RouterProvider router={router}/>
+    <StripeProvider>
+      <RouterProvider router={router}/>
+    </StripeProvider>
   </Provider>
   // </StrictMode>,
 )

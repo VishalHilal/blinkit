@@ -110,6 +110,17 @@ const EditProductAdmin = ({ close ,data : propsData,fetchProductData}) => {
     setOpenAddField(false)
   }
 
+  const handleRemoveField = (fieldName) => {
+    setData((preve) => {
+      const newMoreDetails = { ...preve.more_details };
+      delete newMoreDetails[fieldName];
+      return {
+        ...preve,
+        more_details: newMoreDetails
+      };
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     console.log("data", data)
@@ -383,8 +394,18 @@ const EditProductAdmin = ({ close ,data : propsData,fetchProductData}) => {
               {
                 Object?.keys(data?.more_details)?.map((k, index) => {
                   return (
-                    <div className='grid gap-1'>
-                      <label htmlFor={k} className='font-medium'>{k}</label>
+                    <div key={k} className='grid gap-1 relative'>
+                      <div className='flex justify-between items-center'>
+                        <label htmlFor={k} className='font-medium'>{k}</label>
+                        <button
+                          type='button'
+                          onClick={() => handleRemoveField(k)}
+                          className='text-red-500 hover:text-red-700'
+                          title={`Remove ${k} field`}
+                        >
+                          <IoClose size={20} />
+                        </button>
+                      </div>
                       <input
                         id={k}
                         type='text'
