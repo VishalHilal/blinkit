@@ -229,7 +229,8 @@ const UploadProduct = () => {
             'Description': {
                 type: 'field',
                 field: 'description',
-                descriptionOnly: true
+                descriptionOnly: true,
+                isMainDescription: true  // Add flag to identify main description
             },
             'Unit': {
                 type: 'field',
@@ -253,7 +254,7 @@ const UploadProduct = () => {
             },
             'Customer Care Details': {
                 type: 'object',
-                field: 'Customer Care Details',
+                field: 'customerCare',
                 subFields: ['email', 'phone', 'address']
             },
             'Return Policy': {
@@ -418,10 +419,23 @@ const sectionPattern = new RegExp(`(${validSectionNames.join('|')})`, 'g')
                         console.log('Set unit:', product[sectionConfig.field])
                     } else if (sectionConfig.field === 'description') {
                         // Special handling for description field
-                        if (content) {
-                            // If we find a description section, always set it to the main description field
-                            product.description = content.trim()
+                        if (content && !product.description) {  // Only set if not already set
+                            // Clean up description content
+                            const cleanedContent = content
+                                .split('\n')
+                                .map(line => line.trim())
+                                .filter(line => line)
+                                .join('\n\n')
+                                .replace(/\n{3,}/g, '\n\n')
+                                .trim()
+                            
+                            product.description = cleanedContent
                             console.log('Set main description:', product.description)
+                            
+                            // Remove description from more_details if it exists
+                            if (product.more_details.description) {
+                                delete product.more_details.description
+                            }
                         }
                     } else if (sectionConfig.field === 'disclaimer') {
                         // Handle disclaimer like other fields
@@ -432,9 +446,11 @@ const sectionPattern = new RegExp(`(${validSectionNames.join('|')})`, 'g')
                             .join('\n')
                         console.log('Set disclaimer:', product.more_details[sectionConfig.field])
                     } else {
-                        // For all other fields
-                        product.more_details[sectionConfig.field] = content.trim()
-                        console.log(`Set ${sectionName}:`, product.more_details[sectionConfig.field])
+                        // For all other fields, only add to more_details if not description
+                        if (sectionConfig.field !== 'description') {
+                            product.more_details[sectionConfig.field] = content.trim()
+                            console.log(`Set ${sectionName}:`, product.more_details[sectionConfig.field])
+                        }
                     }
                     break
 
@@ -445,11 +461,25 @@ const sectionPattern = new RegExp(`(${validSectionNames.join('|')})`, 'g')
                     }
                     const subFields = sectionConfig.subFields
                     subFields.forEach(field => {
-                        const regex = new RegExp(`${field}:\\s*(.+?)(?=\\n|$)`, 'i')
+                        // Improved regex pattern to better handle email and other fields
+                        const regex = new RegExp(`${field}\\s*:?\\s*(.+?)(?=\\n|$)`, 'i')
                         const match = content.match(regex)
                         if (match) {
-                            product.more_details[sectionConfig.field][field] = match[1].trim()
-                            console.log(`Set ${field}:`, product.more_details[sectionConfig.field][field])
+                            const value = match[1].trim()
+                            // Special handling for email field
+                            if (field === 'email') {
+                                // Remove any extra spaces and ensure it's a valid email format
+                                const emailValue = value.replace(/\s+/g, '').toLowerCase()
+                                if (emailValue.includes('@')) {
+                                    product.more_details[sectionConfig.field][field] = emailValue
+                                    console.log(`Set ${field}:`, product.more_details[sectionConfig.field][field])
+                                } else {
+                                    console.warn(`Invalid email format: ${value}`)
+                                }
+                            } else {
+                                product.more_details[sectionConfig.field][field] = value
+                                console.log(`Set ${field}:`, product.more_details[sectionConfig.field][field])
+                            }
                         }
                     })
                     break
@@ -633,6 +663,9 @@ const sectionPattern = new RegExp(`(${validSectionNames.join('|')})`, 'g')
   const renderAdditionalFields = () => {
     return Object.entries(data?.more_details || {})
         .filter(([key, value]) => {
+            // Exclude description from additional fields
+            if (key === 'description') return false;
+            
             // For customerCare, check if any subfield has data
             if (key === 'customerCare') {
                 return Object.values(value || {}).some(v => v)
