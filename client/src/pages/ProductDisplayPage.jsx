@@ -165,7 +165,6 @@ const ProductDisplayPage = () => {
     return () => container.removeEventListener('scroll', handleScroll);
   }, [data.image]); // Re-run when images change
 
-  console.log("product data",data)
   return (
     <section className='container mx-auto p-4 grid lg:grid-cols-2 '>
         <div className=''>

@@ -13,7 +13,7 @@ import AxiosToastError from '../utils/AxiosToastError';
 import successAlert from '../utils/SuccessAlert';
 import toast from 'react-hot-toast';
 import { useEffect } from 'react';
-import BulkUploadProducts from '../components/BulkUploadProducts';
+
 
 
 
@@ -824,6 +824,8 @@ const sectionPattern = new RegExp(`(${validSectionNames.join('|')})`, 'g')
   }
 
   return (
+
+    // this is upload product section , here we can upload the product images 
     <section className=''>
         <div className='p-2   bg-white shadow-md flex items-center justify-between'>
             <h2 className='font-semibold'>Upload Product</h2>
@@ -838,60 +840,10 @@ const sectionPattern = new RegExp(`(${validSectionNames.join('|')})`, 'g')
                         className='hidden'
                     />
                 </label>
-                <button
-                    onClick={() => setShowBulkUpload(true)}
-                    className='px-4 py-1 bg-primary-200 text-white rounded hover:bg-primary-300 text-sm'
-                >
-                    Bulk Upload
-                </button>
             </div>
         </div>
 
-        {/* Status Message */}
-        {status && (
-            <div className='p-3 bg-blue-50 text-blue-700 rounded m-2'>
-                {status}
-            </div>
-        )}
-
-        {/* RTF File Format Instructions */}
-        <div className='p-2 bg-gray-50 text-sm text-gray-600 m-2 rounded'>
-            <p className='font-medium mb-1'>RTF File Format:</p>
-            <ul className='list-disc list-inside'>
-                <li>Each section should start with its name as a heading</li>
-                <li>Sections should be separated by blank lines</li>
-                <li>Required sections:</li>
-                <ul className='list-disc list-inside ml-4'>
-                    <li>Product Details (header)</li>
-                    <li>Key Features (list of features)</li>
-                    <li>Ingredients</li>
-                    <li>Unit</li>
-                    <li>Type</li>
-                    <li>Description</li>
-                </ul>
-                <li>Example format:</li>
-                <pre className='ml-4 mt-1 bg-white p-2 rounded text-xs'>
-                    {`Product Details
-
-Key Features
-Versatile flour
-Suitable for daily use
-
-Ingredients
-Chana Besan
-
-Unit
-1 kg
-
-Type
-Besan
-
-Description
-Gram Flour important vitamins...`}
-                </pre>
-            </ul>
-        </div>
-
+    
         <div className='grid p-3'>
             <form className='grid gap-4' onSubmit={handleSubmit}>
                 {/* Only show name field if found in RTF or manually added */}
@@ -1226,12 +1178,6 @@ Gram Flour important vitamins...`}
           )
         }
 
-        {showBulkUpload && (
-            <BulkUploadProducts
-                close={() => setShowBulkUpload(false)}
-                fetchData={handleProductSelect}
-            />
-        )}
     </section>
   )
 }

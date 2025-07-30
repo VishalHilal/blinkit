@@ -1,16 +1,28 @@
-import React from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { CheckCircle } from 'lucide-react';
 
 const Success = () => {
-  const location = useLocation()
-    
-    console.log("location",)  
-  return (
-    <div className='m-2 w-full max-w-md bg-green-200 p-4 py-5 rounded mx-auto flex flex-col justify-center items-center gap-5'>
-        <p className='text-green-800 font-bold text-lg text-center'>{Boolean(location?.state?.text) ? location?.state?.text : "Payment" } Successfully</p>
-        <Link to="/" className="border border-green-900 text-green-900 hover:bg-green-900 hover:text-white transition-all px-4 py-1">Go To Home</Link>
-    </div>
-  )
-}
+  const location = useLocation();
+  const message = Boolean(location?.state?.text) ? location.state.text : "Payment";
 
-export default Success
+  return (
+    <div className="m-4 w-full max-w-md bg-white shadow-lg p-6 rounded-2xl mx-auto flex flex-col items-center gap-4 border border-green-100">
+      <CheckCircle className="text-green-600" size={48} />
+      <h2 className="text-xl font-semibold text-green-700 text-center">
+        {message} Successful
+      </h2>
+      <p className="text-gray-600 text-center text-sm">
+        Thank you for your transaction. You can now return to the homepage.
+      </p>
+      <Link
+        to="/"
+        className="mt-2 bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200"
+      >
+        Go To Home
+      </Link>
+    </div>
+  );
+};
+
+export default Success;

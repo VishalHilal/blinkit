@@ -10,6 +10,9 @@ const resend = new Resend(process.env.RESEND_API);
 
 const sendEmail = async({sendTo, subject, html })=>{
     try {
+        console.log('Attempting to send email to:', sendTo);
+        console.log('Email subject:', subject);
+        
         const { data, error } = await resend.emails.send({
             from: 'Binkeet <onboarding@resend.dev>',
             to: sendTo,
@@ -18,12 +21,15 @@ const sendEmail = async({sendTo, subject, html })=>{
         });
 
         if (error) {
-            return console.error({ error });
+            console.error('Resend API Error:', error);
+            throw new Error(`Email sending failed: ${error.message}`);
         }
 
+        console.log('Email sent successfully:', data);
         return data
     } catch (error) {
-        console.log(error)
+        console.error('Email sending error:', error);
+        throw error;
     }
 }
 

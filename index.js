@@ -2,6 +2,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 import express from 'express'
+import Stripe from 'stripe'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import morgan from 'morgan'
@@ -15,12 +16,13 @@ import productRouter from './route/product.route.js'
 import cartRouter from './route/cart.route.js'
 import addressRouter from './route/address.route.js'
 import orderRouter from './route/order.route.js'
-// import paymentRouter from './route/payment.route.js'
+
 
 const app = express()
 
+
 app.use(cors({
-    origin: "https://blinkit-drab.vercel.app",
+    origin: "http://localhost:5173",
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -41,6 +43,8 @@ app.get("/",(request,response)=>{
     })
 })
 
+
+
 app.use('/api/user',userRouter)
 app.use("/api/category",categoryRouter)
 app.use("/api/file",uploadRouter)
@@ -49,7 +53,8 @@ app.use("/api/product",productRouter)
 app.use("/api/cart",cartRouter)
 app.use("/api/address",addressRouter)
 app.use('/api/order',orderRouter)
-// app.use('/api/payment', paymentRouter)
+
+
 
 connectDB().then(()=>{
     app.listen(PORT,()=>{

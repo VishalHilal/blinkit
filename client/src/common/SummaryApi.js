@@ -1,4 +1,4 @@
-export const baseURL = "https://blinkit-2f10.onrender.com"
+export const baseURL = "http://localhost:3000" // backend server url
 
 const SummaryApi = {
     register : {
@@ -149,6 +149,11 @@ const SummaryApi = {
         url : "/api/order/checkout",
         method : 'post'
     },
+
+      stripe_create_intent: {
+    url: '/api/order/create-payment-intent',
+    method: 'POST',
+  },
     getOrderItems : {
         url : '/api/order/order-list',
         method : 'get'

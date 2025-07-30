@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import { useStripe } from '@stripe/react-stripe-js';
 import toast from 'react-hot-toast';
 import Axios from '../utils/Axios';
 import SummaryApi from '../common/SummaryApi';
 import { useNavigate } from 'react-router-dom';
 
 const UPIPayment = ({ amount, addressId, cartItems, onSuccess }) => {
-    const stripe = useStripe();
     const navigate = useNavigate();
     const [upiId, setUpiId] = useState('');
     const [processing, setProcessing] = useState(false);

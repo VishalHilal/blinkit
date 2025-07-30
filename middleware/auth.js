@@ -2,11 +2,13 @@ import jwt from 'jsonwebtoken'
 
 const auth = async(request,response,next)=>{
     try {
-        const token = request.cookies.accessToken || request?.headers?.authorization?.split(" ")[1]
+        const token = request.cookies.accessToken || request?.headers?.authorization?.split(" ")[1];
+
+        console.log("the token is", token);
        
         if(!token){
             return response.status(401).json({
-                message : "Please login"
+                message : "Please login before purchasing"
             })
         }
 

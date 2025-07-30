@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useGlobalContext } from '../provider/GlobalProvider'
 import { DisplayPriceInRupees } from '../utils/DisplayPriceInRupees'
 import AddAddress from '../components/AddAddress'
@@ -7,7 +7,7 @@ import AxiosToastError from '../utils/AxiosToastError'
 import Axios from '../utils/Axios'
 import SummaryApi from '../common/SummaryApi'
 import toast from 'react-hot-toast'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import StripePayment from '../components/StripePayment'
 import UPIPayment from '../components/UPIPayment'
 
@@ -18,7 +18,15 @@ const CheckoutPage = () => {
   const [selectAddress, setSelectAddress] = useState(0)
   const cartItemsList = useSelector(state => state.cartItem.cart)
   const navigate = useNavigate()
+  const location = useLocation();
   const [paymentMethod, setPaymentMethod] = useState('card') // 'cod' or 'card' or 'upi'
+  const user = useSelector(state => state.user);
+
+  useEffect(() => {
+    if (!user._id) {
+      navigate('/login', { state: { from: location.pathname } });
+    }
+  }, [user, navigate, location]);
 
   const handleCashOnDelivery = async() => {
       if (!addressList[selectAddress]?._id) {
@@ -73,7 +81,7 @@ const CheckoutPage = () => {
             ) : (
                 addressList.map((address, index) => {
                     return (
-                        <label key={address._id} htmlFor={"address" + index} className={!address.status && "hidden"}>
+                        <label key={address._id} htmlFor={"address" + index} className={address.status ? undefined : "hidden"}>
                             <div className='border rounded p-3 flex gap-3 hover:bg-blue-50 mb-3'>
                                 <div>
                                     <input 
@@ -135,6 +143,7 @@ const CheckoutPage = () => {
           </div>
 
           {/* Payment Methods */}
+          {/* card payment method  */}
           <div className='bg-white rounded-lg shadow-sm p-4'>
             <h3 className='text-lg font-semibold mb-4'>Payment Method</h3>
             <div className='space-y-4'>
@@ -150,6 +159,8 @@ const CheckoutPage = () => {
                 />
                 <label htmlFor="card" className='font-medium text-gray-700'>Credit/Debit Card</label>
               </div>
+
+              {/* upi payment method */}
               <div className='flex items-center gap-3'>
                 <input
                   type="radio"
@@ -162,6 +173,8 @@ const CheckoutPage = () => {
                 />
                 <label htmlFor="upi" className='font-medium text-gray-700'>UPI Payment</label>
               </div>
+
+              {/* cash on delivery  method */}
               <div className='flex items-center gap-3'>
                 <input
                   type="radio"
@@ -195,12 +208,15 @@ const CheckoutPage = () => {
                           amount={totalPrice}
                           addressId={addressList[selectAddress]?._id}
                           cartItems={cartItemsList}
+                          user={user}
+                          address={addressList[selectAddress]}
                           onSuccess={() => {
                             if (fetchCartItem) fetchCartItem();
                             if (fetchOrder) fetchOrder();
                           }}
                         />
                       )}
+
                       {paymentMethod === 'upi' && (
                         <UPIPayment
                           amount={totalPrice}

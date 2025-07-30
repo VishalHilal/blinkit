@@ -3,7 +3,7 @@ import './App.css'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import toast, { Toaster } from 'react-hot-toast';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import fetchUserDetails from './utils/fetchUserDetails';
 import { setUserDetails } from './store/userSlice';
 import { setAllCategory,setAllSubCategory,setLoadingCategory } from './store/productSlice';
@@ -14,15 +14,23 @@ import { handleAddItemCart } from './store/cartProduct'
 import GlobalProvider from './provider/GlobalProvider';
 import { FaCartShopping } from "react-icons/fa6";
 import CartMobileLink from './components/CartMobile';
+import DisplayCartItem from './components/DisplayCartItem';
 
 function App() {
   const dispatch = useDispatch()
   const location = useLocation()
+  const [openCartSection, setOpenCartSection] = useState(false)
   
 
   const fetchUser = async()=>{
-      const userData = await fetchUserDetails()
-      dispatch(setUserDetails(userData.data))
+      try {
+          const userData = await fetchUserDetails()
+          if (userData && userData.data) {
+              dispatch(setUserDetails(userData.data))
+          }
+      } catch (error) {
+          console.error('Error fetching user:', error)
+      }
   }
 
   const fetchCategory = async()=>{
@@ -70,7 +78,7 @@ function App() {
 
   return (
     <GlobalProvider> 
-      <Header/>
+      <Header openCartSection={setOpenCartSection}/>
       <main className='min-h-[78vh]'>
           <Outlet/>
       </main>
@@ -78,7 +86,12 @@ function App() {
       <Toaster/>
       {
         location.pathname !== '/checkout' && (
-          <CartMobileLink/>
+          <CartMobileLink openCartSection={() => setOpenCartSection(true)}/>
+        )
+      }
+      {
+        openCartSection && (
+          <DisplayCartItem close={() => setOpenCartSection(false)}/>
         )
       }
     </GlobalProvider>

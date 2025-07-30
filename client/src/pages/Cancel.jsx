@@ -1,13 +1,25 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { XCircle } from 'lucide-react';
 
 const Cancel = () => {
   return (
-    <div className='m-2 w-full max-w-md bg-red-200 p-4 py-5 rounded mx-auto flex flex-col justify-center items-center gap-5'>
-        <p className='text-red-800 font-bold text-lg text-center'>Order Cancel</p>
-        <Link to="/" className="border border-red-900 text-red-900 hover:bg-red-900 hover:text-white transition-all px-4 py-1">Go To Home</Link>
+    <div className="m-4 w-full max-w-md bg-white shadow-lg p-6 rounded-2xl mx-auto flex flex-col items-center gap-4 border border-red-100">
+      <XCircle className="text-red-600" size={48} />
+      <h2 className="text-xl font-semibold text-red-700 text-center">
+        Order Cancelled
+      </h2>
+      <p className="text-gray-600 text-center text-sm">
+        Your payment was not completed. You can return to the homepage to continue shopping.
+      </p>
+      <Link
+        to="/"
+        className="mt-2 bg-red-600 text-white px-5 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200"
+      >
+        Go To Home
+      </Link>
     </div>
-  )
-}
+  );
+};
 
-export default Cancel
+export default Cancel;

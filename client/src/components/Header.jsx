@@ -11,9 +11,8 @@ import { GoTriangleDown, GoTriangleUp  } from "react-icons/go";
 import UserMenu from './UserMenu';
 import { DisplayPriceInRupees } from '../utils/DisplayPriceInRupees';
 import { useGlobalContext } from '../provider/GlobalProvider';
-import DisplayCartItem from './DisplayCartItem';
 
-const Header = () => {
+const Header = ({ openCartSection }) => {
     const [ isMobile ] = useMobile()
     const location = useLocation()
     const isSearchPage = location.pathname === "/search"
@@ -21,10 +20,7 @@ const Header = () => {
     const user = useSelector((state)=> state?.user)
     const [openUserMenu,setOpenUserMenu] = useState(false)
     const cartItem = useSelector(state => state.cartItem.cart)
-    // const [totalPrice,setTotalPrice] = useState(0)
-    // const [totalQty,setTotalQty] = useState(0)
     const { totalPrice, totalQty} = useGlobalContext()
-    const [openCartSection,setOpenCartSection] = useState(false)
  
     const redirectToLoginPage = ()=>{
         navigate("/login")
@@ -46,20 +42,6 @@ const Header = () => {
     const handleHomeClick = () => {
         navigate('/', { replace: true });
     }
-
-    //total item and total price
-    // useEffect(()=>{
-    //     const qty = cartItem.reduce((preve,curr)=>{
-    //         return preve + curr.quantity
-    //     },0)
-    //     setTotalQty(qty)
-        
-    //     const tPrice = cartItem.reduce((preve,curr)=>{
-    //         return preve + (curr.productId.price * curr.quantity)
-    //     },0)
-    //     setTotalPrice(tPrice)
-
-    // },[cartItem])
 
   return (
     <header className='min-h-[88px] lg:h-20 lg:shadow-md sticky top-0 z-50 flex flex-col justify-center gap-2 bg-white'>
@@ -136,14 +118,17 @@ const Header = () => {
                                     <button onClick={redirectToLoginPage} className='text-lg px-2'>Login</button>
                                 )
                             }
-                            <button onClick={()=>setOpenCartSection(true)} className='flex items-center gap-2 bg-green-800 hover:bg-green-700 px-3 py-2 rounded text-white'>
+
+
+                            {/*this section is to open the cart from the home screen after items added to cart */}
+                            <button onClick={()=>openCartSection(true)} className='flex items-center gap-2 bg-green-800 hover:bg-green-700 px-3 py-2 rounded text-white'>
                                 {/**add to card icons */}
                                 <div className='animate-bounce'>
                                     <BsCart4 size={26}/>
                                 </div>
                                 <div className='font-semibold text-sm'>
                                     {
-                                        cartItem[0] ? (
+                                        totalQty > 0 ? (
                                             <div>
                                                 <p>{totalQty} Items</p>
                                                 <p>{DisplayPriceInRupees(totalPrice)}</p>
@@ -163,12 +148,6 @@ const Header = () => {
         <div className='container mx-auto px-2 pb-2 lg:hidden'>
             <Search/>
         </div>
-
-        {
-            openCartSection && (
-                <DisplayCartItem close={()=>setOpenCartSection(false)}/>
-            )
-        }
     </header>
   )
 }

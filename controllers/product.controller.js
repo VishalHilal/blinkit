@@ -17,7 +17,7 @@ export const createProductController = async(request,response)=>{
 
         if(!name || !image[0] || !category[0] || !subCategory[0] || !unit || !price || !description ){
             return response.status(400).json({
-                message : "Enter required fields",
+                message : "Enter required fields to upload the product",
                 error : true,
                 success : false
             })

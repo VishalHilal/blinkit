@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import banner from '../assets/banner.jpg'
-import banner1 from '../assets/banner1.png'
-import banner2 from '../assets/banner2.png'
-import banner3 from '../assets/banner3.png'
-import banner4 from '../assets/banner4.png'
+import banner1 from '../assets/perfect6.png'
+import banner2 from '../assets/perfect4.jpg'
+import banner3 from '../assets/perfect3.jpg'
+import banner4 from '../assets/perfect5.jpg'
 import { useSelector } from 'react-redux'
 import { valideURLConvert } from '../utils/valideURLConvert'
 import {Link, useNavigate} from 'react-router-dom'
@@ -88,7 +88,7 @@ const Home = () => {
                   >
                     <img
                       src={bannerImg}
-                      className='w-full h-full object-cover object-center'
+                      className='w-full h-full object-contain object-center bg-white'
                       alt={`banner ${index + 1}`}
                       loading={index === 0 ? 'eager' : 'lazy'}
                       onError={(e) => {

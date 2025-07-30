@@ -15,7 +15,7 @@ export async function registerUserController(request,response){
 
         if(!name || !email || !password){
             return response.status(400).json({
-                message : "provide email, name, password",
+                message : "Kindly enter all the required fields",
                 error : true,
                 success : false
             })
@@ -25,7 +25,7 @@ export async function registerUserController(request,response){
 
         if(user){
             return response.json({
-                message : "Already register email",
+                message : "This email is already registered",
                 error : true,
                 success : false
             })
@@ -43,16 +43,16 @@ export async function registerUserController(request,response){
         const newUser = await UserModel(payload)
         const save = await newUser.save()
 
-        const VerifyEmailUrl = `${process.env.FRONTEND_URL}/verify-email?code=${save?._id}`
+        // const VerifyEmailUrl = `${process.env.FRONTEND_URL}/verify-email?code=${save?._id}`
 
-        const verifyEmail = await sendEmail({
-            sendTo : email,
-            subject : "Verify email from Binkeet",
-            html : verifyEmailTemplate({
-                name,
-                url : VerifyEmailUrl
-            })
-        })
+        // const verifyEmail = await sendEmail({
+        //     sendTo : email,
+        //     subject : "Verify email from Binkeet",
+        //     html : verifyEmailTemplate({
+        //         name,
+        //         url : VerifyEmailUrl
+        //     })
+        // })
 
         return response.json({
             message : "User register successfully",
@@ -109,7 +109,7 @@ export async function loginController(request,response){
 
         if(!email || !password){
             return response.status(400).json({
-                message : "provide email, password",
+                message : "Please enter your registered email and password",
                 error : true,
                 success : false
             })
@@ -137,7 +137,7 @@ export async function loginController(request,response){
 
         if(!checkPassword){
             return response.status(400).json({
-                message : "Check your password",
+                message : "Please check your password",
                 error : true,
                 success : false
             })
@@ -150,11 +150,14 @@ export async function loginController(request,response){
             last_login_date : new Date()
         })
 
+        const isProd = process.env.NODE_ENV === 'production'
+
         const cookiesOption = {
             httpOnly : true,
-            secure : true,
-            sameSite : "None"
+            secure : isProd,
+            sameSite : isProd ? 'None' : 'Lax'
         }
+
         response.cookie('accessToken',accesstoken,cookiesOption)
         response.cookie('refreshToken',refreshToken,cookiesOption)
 
@@ -182,13 +185,15 @@ export async function loginController(request,response){
 export async function logoutController(request,response){
     try {
         const userid = request.userId //middleware
+        const isProd = process.env.NODE_ENV === 'production';
 
         const cookiesOption = {
-            httpOnly : true,
-            secure : true,
-            sameSite : "None"
-        }
-
+          httpOnly: true,
+          secure: isProd,                 // false on localhost
+          sameSite: isProd ? 'None' : 'Lax'
+          // add maxAge if you want
+        };
+        
         response.clearCookie("accessToken",cookiesOption)
         response.clearCookie("refreshToken",cookiesOption)
 
@@ -287,7 +292,7 @@ export async function forgotPasswordController(request,response) {
 
         if(!user){
             return response.status(400).json({
-                message : "Email not available",
+                message : "please enter registered email",
                 error : true,
                 success : false
             })
@@ -301,22 +306,32 @@ export async function forgotPasswordController(request,response) {
             forgot_password_expiry : new Date(expireTime).toISOString()
         })
 
-        await sendEmail({
-            sendTo : email,
-            subject : "Forgot password from Binkeet",
-            html : forgotPasswordTemplate({
-                name : user.name,
-                otp : otp
+        try {
+            await sendEmail({
+                sendTo : email,
+                subject : "Forgot password from Binkeet",
+                html : forgotPasswordTemplate({
+                    name : user.name,
+                    otp : otp
+                })
             })
-        })
+        } catch (emailError) {
+            console.error('Email sending failed:', emailError);
+            return response.status(500).json({
+                message : "Failed to send OTP email. Please try again later.",
+                error : true,
+                success : false
+            })
+        }
 
         return response.json({
-            message : "check your email",
+            message : "OTP sent successfully on your email",
             error : false,
             success : true
         })
 
     } catch (error) {
+        console.error('Forgot password error:', error);
         return response.status(500).json({
             message : error.message || error,
             error : true,
@@ -332,7 +347,7 @@ export async function verifyForgotPasswordOtp(request,response){
 
         if(!email || !otp){
             return response.status(400).json({
-                message : "Provide required field email, otp.",
+                message : "Please enter Email and OTP.",
                 error : true,
                 success : false
             })
@@ -342,7 +357,7 @@ export async function verifyForgotPasswordOtp(request,response){
 
         if(!user){
             return response.status(400).json({
-                message : "Email not available",
+                message : "Please enter registered email",
                 error : true,
                 success : false
             })
@@ -352,7 +367,7 @@ export async function verifyForgotPasswordOtp(request,response){
 
         if(user.forgot_password_expiry < currentTime  ){
             return response.status(400).json({
-                message : "Otp is expired",
+                message : "OTP is expired",
                 error : true,
                 success : false
             })
@@ -360,7 +375,7 @@ export async function verifyForgotPasswordOtp(request,response){
 
         if(otp !== user.forgot_password_otp){
             return response.status(400).json({
-                message : "Invalid otp",
+                message : "Invalid OTP",
                 error : true,
                 success : false
             })
@@ -375,7 +390,7 @@ export async function verifyForgotPasswordOtp(request,response){
         })
         
         return response.json({
-            message : "Verify otp successfully",
+            message : "OTP verified successfully",
             error : false,
             success : true
         })
@@ -396,7 +411,7 @@ export async function resetpassword(request,response){
 
         if(!email || !newPassword || !confirmPassword){
             return response.status(400).json({
-                message : "provide required fields email, newPassword, confirmPassword"
+                message : "Please enter all the required fields"
             })
         }
 
@@ -404,7 +419,7 @@ export async function resetpassword(request,response){
 
         if(!user){
             return response.status(400).json({
-                message : "Email is not available",
+                message : "Please enter registered email",
                 error : true,
                 success : false
             })
@@ -412,7 +427,7 @@ export async function resetpassword(request,response){
 
         if(newPassword !== confirmPassword){
             return response.status(400).json({
-                message : "newPassword and confirmPassword must be same.",
+                message : "New Password and Confirm Password must be same .",
                 error : true,
                 success : false,
             })
@@ -468,11 +483,15 @@ export async function refreshToken(request,response){
 
         const newAccessToken = await generatedAccessToken(userId)
 
+        const isProd = process.env.NODE_ENV === 'production';
+
         const cookiesOption = {
             httpOnly : true,
-            secure : true,
-            sameSite : "None"
+            secure : isProd,
+            sameSite : isProd ? 'None' : 'Lax'
         }
+
+        console.log("newAccess token is ", newAccessToken);
 
         response.cookie('accessToken',newAccessToken,cookiesOption)
 
@@ -500,9 +519,11 @@ export async function userDetails(request,response){
     try {
         const userId  = request.userId
 
-        console.log(userId)
+        console.log("user id is ", userId);
 
         const user = await UserModel.findById(userId).select('-password -refresh_token')
+
+        console.log("user Details", user);
 
         return response.json({
             message : 'user details',
