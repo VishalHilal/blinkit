@@ -3,12 +3,7 @@ import { DisplayPriceInRupees } from '../utils/DisplayPriceInRupees'
 import { useNavigate } from 'react-router-dom'
 import { valideURLConvert } from '../utils/valideURLConvert'
 import { pricewithDiscount } from '../utils/PriceWithDiscount'
-import SummaryApi from '../common/SummaryApi'
-import AxiosToastError from '../utils/AxiosToastError'
-import Axios from '../utils/Axios'
-import toast from 'react-hot-toast'
 import { useState } from 'react'
-import { useGlobalContext } from '../provider/GlobalProvider'
 import AddToCartButton from './AddToCartButton'
 
 const CardProduct = ({data}) => {

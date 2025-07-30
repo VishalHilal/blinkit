@@ -44,33 +44,33 @@ const Header = ({ openCartSection }) => {
     }
 
   return (
-    <header className='min-h-[88px] lg:h-20 lg:shadow-md sticky top-0 z-50 flex flex-col justify-center gap-2 bg-white'>
+    <header className='min-h-[88px] lg:h-20 lg:shadow-md sticky top-0 z-50 flex flex-col justify-center gap-0 bg-white'>
         {
             !(isSearchPage && isMobile) && (
                 <div className='container mx-auto flex items-center px-2 justify-between py-2'>
                     {/**logo */}
-                    <div className='h-full flex items-center gap-4'>
+                    <div className='h-full flex items-center gap-20'>
                         <Link to={"/"} className='h-full flex justify-center items-center'>
                             <img 
                                 src={logo}
-                                width={210}
-                                height={90}
+                                width={250}
+                                height={120}
                                 alt='logo'
-                                className='hidden lg:block'
+                                className='hidden lg:block mt-5'
                             />
                             <img 
                                 src={logo}
                                 width={120}
                                 height={60}
                                 alt='logo'
-                                className='lg:hidden'
+                                className='lg:hidden mt-2 w-[160px] h-[70px] '
                             />
                         </Link>
                         <button 
                             onClick={handleHomeClick}
                             className='flex items-center gap-2 text-green-800 hover:text-green-700 px-3 py-2 rounded hover:bg-green-50'
                         >
-                            <FaHome size={20} />
+                            <FaHome size={25} className='flex align-left' />
                             <span className='hidden lg:inline'>Home</span>
                         </button>
                     </div>
