@@ -235,8 +235,8 @@ export async function stripePaymentController(req, res) {
         },
       ],
       mode: "payment",
-      success_url: "http://localhost:5173/success",
-      cancel_url: "http://localhost:5173/cancel",
+      success_url: "https://blinkit-drab.vercel.app/success",
+      cancel_url: "https://blinkit-drab.vercel.app/cancel",
       metadata: {
         addressId: addressId,
         totalCartItems: cartItems.length,

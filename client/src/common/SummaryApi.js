@@ -1,4 +1,4 @@
-export const baseURL = "http://localhost:3000" // backend server url
+export const baseURL = "https://blinkit-2f10.onrender.com" // backend server url
 
 const SummaryApi = {
     register : {
