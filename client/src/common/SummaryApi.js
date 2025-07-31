@@ -152,8 +152,9 @@ const SummaryApi = {
 
       stripe_create_intent: {
     url: '/api/order/create-payment-intent',
-    method: 'POST',
+    method: 'post',
   },
+
     getOrderItems : {
         url : '/api/order/order-list',
         method : 'get'

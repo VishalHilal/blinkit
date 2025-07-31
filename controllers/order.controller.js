@@ -217,7 +217,6 @@ export async function stripePaymentController(req, res) {
   const { amount, addressId, cartItems } = req.body;
   const userId = req.userId;
 
-  console.log("user id for stripe is ", userId);
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -235,8 +234,8 @@ export async function stripePaymentController(req, res) {
         },
       ],
       mode: "payment",
-      success_url: "https://blinkit-drab.vercel.app/success",
-      cancel_url: "https://blinkit-drab.vercel.app/cancel",
+      success_url: "https://blinkit-2f10.onrender.com/success",
+      cancel_url: "https://blinkit-2f10.onrender.com/cancel",
       metadata: {
         addressId: addressId,
         totalCartItems: cartItems.length,
@@ -248,9 +247,10 @@ export async function stripePaymentController(req, res) {
       shopping_cart: [],
     });
 
-    res.json({ url: session.url, success: true, error: false });
+    return res.json({ url: session.url, success: true, error: false});
   } catch (err) {
     console.log("the error is ", err);
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message});
   }
 }
+

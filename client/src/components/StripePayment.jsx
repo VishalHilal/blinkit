@@ -2,16 +2,13 @@ import Axios from '../utils/Axios'
 import SummaryApi from '../common/SummaryApi'
 import { loadStripe } from '@stripe/stripe-js'
 
-
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
-const StripePayment = ({ amount, addressId, cartItems, onSuccess }) => {
+const StripePayment = ({ amount, addressId, cartItems }) => {
 
   const handleStripeCheckout = async () => {
-
-
     if(amount === 0){
-        alert("please add some items first");
+        alert("Please add some items first");
         return;
     }
     try {
@@ -26,23 +23,24 @@ const StripePayment = ({ amount, addressId, cartItems, onSuccess }) => {
 
       const { data: resData } = response
 
-
       if (resData.url) {
-
-        window.location.href = resData.url;
+        window.location.href = resData.url
       }
     } catch (error) {
       console.error(error)
     }
   }
 
+
   return (
+    <div>
     <button
       onClick={handleStripeCheckout}
       className='w-full py-3 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700'
     >
       Pay with Card
     </button>
+    </div>
   )
 }
 

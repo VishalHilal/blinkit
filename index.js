@@ -21,6 +21,7 @@ import orderRouter from './route/order.route.js'
 const app = express()
 
 
+app.set("view engine","ejs")
 app.use(cors({
     origin: "https://blinkit-drab.vercel.app",
     credentials: true,
@@ -54,6 +55,22 @@ app.use("/api/cart",cartRouter)
 app.use("/api/address",addressRouter)
 app.use('/api/order',orderRouter)
 
+
+app.get('/success', (req, res) => {
+  const message = req.query.text || "Payment";
+  res.render('success.ejs', { 
+    text: message,
+    frontendUrl: 'https://blinkit-drab.vercel.app'
+  });
+});
+
+app.get('/cancel', (req, res) => {
+  const message = req.query.text || "Payment";
+  res.render('cancel.ejs', { 
+    text: message,
+    frontendUrl:'https://blinkit-drab.vercel.app'
+ });
+});
 
 
 connectDB().then(()=>{
