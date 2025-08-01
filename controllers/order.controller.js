@@ -234,8 +234,8 @@ export async function stripePaymentController(req, res) {
         },
       ],
       mode: "payment",
-      success_url: "https://blinkit-2f10.onrender.com/success",
-      cancel_url: "https://blinkit-2f10.onrender.com/cancel",
+      success_url: "http://localhost:3000/success",
+      cancel_url: "http://localhost:3000/cancel",
       metadata: {
         addressId: addressId,
         totalCartItems: cartItems.length,
