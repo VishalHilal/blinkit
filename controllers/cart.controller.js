@@ -5,6 +5,8 @@ export const addToCartItemController = async(request,response)=>{
     try {
         const  userId = request.userId
         const { productId } = request.body
+
+        console.log("the product id is ", productId);
         
         if(!productId){
             return response.status(402).json({
