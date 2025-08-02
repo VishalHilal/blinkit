@@ -7,192 +7,167 @@ import SummaryApi from '../common/SummaryApi';
 import toast from 'react-hot-toast';
 import AxiosToastError from '../utils/AxiosToastError';
 
-const EditSubCategory = ({close,data,fetchData}) => {
-    const [subCategoryData,setSubCategoryData] = useState({
-        _id : data._id,
-        name : data.name,
-        image : data.image,
-        category : data.category || []
+const EditSubCategory = ({ close, data, fetchData }) => {
+    const [subCategoryData, setSubCategoryData] = useState({
+        _id: data._id,
+        name: data.name,
+        image: data.image,
+        category: data.category || []
     })
     const allCategory = useSelector(state => state.product.allCategory)
 
+    const handleChange = (e) => {
+        const { name, value } = e.target
 
-    const handleChange = (e)=>{
-        const { name, value} = e.target 
-
-        setSubCategoryData((preve)=>{
-            return{
-                ...preve,
-                [name] : value
-            }
-        })
+        setSubCategoryData(prev => ({
+            ...prev,
+            [name]: value
+        }))
     }
 
-    const handleUploadSubCategoryImage = async(e)=>{
+    const handleUploadSubCategoryImage = async (e) => {
         const file = e.target.files[0]
-
-        if(!file){
-            return
-        }
+        if (!file) return
 
         const response = await uploadImage(file)
-        const { data : ImageResponse } = response
+        const { data: ImageResponse } = response
 
-        setSubCategoryData((preve)=>{
-            return{
-                ...preve,
-                image : ImageResponse.data.url
-            }
-        })
+        setSubCategoryData(prev => ({
+            ...prev,
+            image: ImageResponse.data.url
+        }))
     }
 
-    const handleRemoveCategorySelected = (categoryId)=>{
-        const index = subCategoryData.category.findIndex(el => el._id === categoryId )
-        subCategoryData.category.splice(index,1)
-        setSubCategoryData((preve)=>{
-            return{
-                ...preve
-            }
-        })
+    const handleRemoveCategorySelected = (categoryId) => {
+        const index = subCategoryData.category.findIndex(el => el._id === categoryId)
+        subCategoryData.category.splice(index, 1)
+        setSubCategoryData(prev => ({ ...prev }))
     }
 
-    const handleSubmitSubCategory = async(e)=>{
+    const handleSubmitSubCategory = async (e) => {
         e.preventDefault()
 
         try {
             const response = await Axios({
                 ...SummaryApi.updateSubCategory,
-                data : subCategoryData
+                data: subCategoryData
             })
 
-            const { data : responseData } = response
+            const { data: responseData } = response
 
-            console.log("responseData",responseData)
-            if(responseData.success){
+            if (responseData.success) {
                 toast.success(responseData.message)
-                if(close){
-                    close()
-                }
-                if(fetchData){
-                    fetchData()
-                }
+                close?.()
+                fetchData?.()
             }
-
         } catch (error) {
             AxiosToastError(error)
         }
     }
 
-  return (
-    <section className='fixed top-0 right-0 bottom-0 left-0 bg-neutral-800 bg-opacity-70 z-50 flex items-center justify-center p-4'>
-        <div className='w-full max-w-5xl bg-white p-4 rounded'>
-            <div className='flex items-center justify-between gap-3'>
-                <h1 className='font-semibold'>Edit Sub Category</h1>
-                <button onClick={close}>
-                    <IoClose size={25}/>
-                </button>
-            </div>
-            <form className='my-3 grid gap-3' onSubmit={handleSubmitSubCategory}>
-                    <div className='grid gap-1'>
-                        <label htmlFor='name'>Name</label>
-                        <input 
-                            id='name'
-                            name='name'
+    return (
+        <section className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div className="w-full max-w-3xl bg-white p-6 rounded-2xl shadow-xl">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-xl font-semibold text-neutral-800">Edit Sub Category</h2>
+                    <button onClick={close} className="text-neutral-600 hover:text-red-500">
+                        <IoClose size={26} />
+                    </button>
+                </div>
+
+                <form onSubmit={handleSubmitSubCategory} className="mt-6 space-y-5">
+                    <div className="space-y-1">
+                        <label htmlFor="name" className="text-sm font-medium text-neutral-700">Name</label>
+                        <input
+                            id="name"
+                            name="name"
                             value={subCategoryData.name}
                             onChange={handleChange}
-                            className='p-3 bg-blue-50 border outline-none focus-within:border-primary-200 rounded '
+                            className="w-full p-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                            placeholder="Enter sub-category name"
                         />
                     </div>
-                    <div className='grid gap-1'>
-                        <p>Image</p>
-                        <div className='flex flex-col lg:flex-row items-center gap-3'>
-                            <div className='border h-36 w-full lg:w-36 bg-blue-50 flex items-center justify-center'>
-                                {
-                                    !subCategoryData.image ? (
-                                        <p className='text-sm text-neutral-400'>No Image</p>
-                                    ) : (
-                                        <img
-                                            alt='subCategory'
-                                            src={subCategoryData.image}
-                                            className='w-full h-full object-scale-down'
-                                        />
-                                    )
-                                }
-                            </div>
-                            <label htmlFor='uploadSubCategoryImage'>
-                                <div className='px-4 py-1 border border-primary-100 text-primary-200 rounded hover:bg-primary-200 hover:text-neutral-900 cursor-pointer  '>
-                                    Upload Image
-                                </div>
-                                <input 
-                                    type='file'
-                                    id='uploadSubCategoryImage'
-                                    className='hidden'
-                                    onChange={handleUploadSubCategoryImage}
-                                />
-                            </label>
-                            
-                        </div>
-                    </div>
-                    <div className='grid gap-1'>
-                        <label>Select Category</label>
-                        <div className='border focus-within:border-primary-200 rounded'>
-                            {/*display value**/}
-                            <div className='flex flex-wrap gap-2'>
-                                {
-                                    subCategoryData.category.map((cat,index)=>{
-                                        return(
-                                            <p key={cat._id+"selectedValue"} className='bg-white shadow-md px-1 m-1 flex items-center gap-2'>
-                                                {cat.name}
-                                                <div className='cursor-pointer hover:text-red-600' onClick={()=>handleRemoveCategorySelected(cat._id)}>
-                                                    <IoClose size={20}/>
-                                                </div>
-                                            </p>
-                                        )
-                                    })
-                                }
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-neutral-700">Image</label>
+                        <div className="flex flex-col lg:flex-row items-center gap-4">
+                            <div className="w-full lg:w-36 h-36 bg-gray-100 rounded-xl flex items-center justify-center border">
+                                {subCategoryData.image ? (
+                                    <img
+                                        src={subCategoryData.image}
+                                        alt="subCategory"
+                                        className="w-full h-full object-contain rounded-xl"
+                                    />
+                                ) : (
+                                    <p className="text-sm text-gray-400">No Image</p>
+                                )}
                             </div>
 
-                            {/*select category**/}
+                            <label htmlFor="uploadSubCategoryImage" className="cursor-pointer">
+                                <div className="px-4 py-2 rounded-xl border border-primary-200 text-primary-600 hover:bg-primary-200 hover:text-white transition">
+                                    Upload Image
+                                </div>
+                                <input
+                                    type="file"
+                                    id="uploadSubCategoryImage"
+                                    onChange={handleUploadSubCategoryImage}
+                                    className="hidden"
+                                />
+                            </label>
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-neutral-700">Select Category</label>
+                        <div className="border rounded-xl p-2 bg-gray-50">
+                            <div className="flex flex-wrap gap-2 mb-2">
+                                {subCategoryData.category.map(cat => (
+                                    <div key={cat._id + "selectedValue"} className="bg-white px-2 py-1 flex items-center gap-2 shadow rounded-md">
+                                        <span>{cat.name}</span>
+                                        <IoClose
+                                            size={18}
+                                            onClick={() => handleRemoveCategorySelected(cat._id)}
+                                            className="text-red-500 cursor-pointer hover:scale-110 transition"
+                                        />
+                                    </div>
+                                ))}
+                            </div>
                             <select
-                                className='w-full p-2 bg-transparent outline-none border'
-                                onChange={(e)=>{
+                                className="w-full p-2 rounded-xl bg-white border focus:outline-none focus:ring-2 focus:ring-primary-200"
+                                onChange={(e) => {
                                     const value = e.target.value
-                                    const categoryDetails = allCategory.find(el => el._id == value)
-                                    
-                                    setSubCategoryData((preve)=>{
-                                        return{
-                                            ...preve,
-                                            category : [...preve.category,categoryDetails]
-                                        }
-                                    })
+                                    const categoryDetails = allCategory.find(el => el._id === value)
+                                    if (categoryDetails) {
+                                        setSubCategoryData(prev => ({
+                                            ...prev,
+                                            category: [...prev.category, categoryDetails]
+                                        }))
+                                    }
                                 }}
                             >
                                 <option value={""}>Select Category</option>
-                                {
-                                    allCategory.map((category,index)=>{
-                                        return(
-                                            <option value={category?._id} key={category._id+"subcategory"}>{category?.name}</option>
-                                        )
-                                    })
-                                }
+                                {allCategory.map(category => (
+                                    <option key={category._id + "subcategory"} value={category._id}>
+                                        {category.name}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                     </div>
 
                     <button
-                        className={`px-4 py-2 border
-                            ${subCategoryData?.name && subCategoryData?.image && subCategoryData?.category[0] ? "bg-primary-200 hover:bg-primary-100" : "bg-gray-200"}    
-                            font-semibold
-                        `}
+                        type="submit"
+                        className={`w-full py-3 rounded-xl font-semibold transition duration-200 ${subCategoryData.name && subCategoryData.image && subCategoryData.category.length > 0
+                            ? "bg-primary-200 text-white hover:bg-primary-100"
+                            : "bg-gray-300 text-gray-600 cursor-not-allowed"}`}
+                        disabled={!(subCategoryData.name && subCategoryData.image && subCategoryData.category.length > 0)}
                     >
                         Submit
                     </button>
-                    
-            </form>
-        </div>
-    </section>
-  )
+                </form>
+            </div>
+        </section>
+    )
 }
 
 export default EditSubCategory
-

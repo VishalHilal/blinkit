@@ -1,153 +1,134 @@
 import React, { useEffect, useState } from 'react'
 import logo from '../assets/logo.png'
 import Search from './Search'
-import { Link, useLocation,useNavigate } from 'react-router-dom'
-import { FaRegCircleUser } from "react-icons/fa6";
-import { FaHome } from "react-icons/fa";
-import useMobile from '../hooks/useMobile';
-import { BsCart4 } from "react-icons/bs";
-import { useSelector } from 'react-redux';
-import { GoTriangleDown, GoTriangleUp  } from "react-icons/go";
-import UserMenu from './UserMenu';
-import { DisplayPriceInRupees } from '../utils/DisplayPriceInRupees';
-import { useGlobalContext } from '../provider/GlobalProvider';
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Home, UserRound } from 'lucide-react'
+import useMobile from '../hooks/useMobile'
+import { BsCart4 } from "react-icons/bs"
+import { useSelector } from 'react-redux'
+import { GoTriangleDown, GoTriangleUp } from "react-icons/go"
+import UserMenu from './UserMenu'
+import { DisplayPriceInRupees } from '../utils/DisplayPriceInRupees'
+import { useGlobalContext } from '../provider/GlobalProvider'
 
 const Header = ({ openCartSection }) => {
-    const [ isMobile ] = useMobile()
-    const location = useLocation()
-    const isSearchPage = location.pathname === "/search"
-    const navigate = useNavigate()
-    const user = useSelector((state)=> state?.user)
-    const [openUserMenu,setOpenUserMenu] = useState(false)
-    const cartItem = useSelector(state => state.cartItem.cart)
-    const { totalPrice, totalQty} = useGlobalContext()
- 
-    const redirectToLoginPage = ()=>{
-        navigate("/login")
-    }
+  const [isMobile] = useMobile()
+  const location = useLocation()
+  const isSearchPage = location.pathname === "/search"
+  const navigate = useNavigate()
+  const user = useSelector((state) => state?.user)
+  const [openUserMenu, setOpenUserMenu] = useState(false)
+  const cartItem = useSelector(state => state.cartItem.cart)
+  const { totalPrice, totalQty } = useGlobalContext()
 
-    const handleCloseUserMenu = ()=>{
-        setOpenUserMenu(false)
-    }
+  const redirectToLoginPage = () => navigate("/login")
+  const handleCloseUserMenu = () => setOpenUserMenu(false)
 
-    const handleMobileUser = ()=>{
-        if(!user._id){
-            navigate("/login")
-            return
-        }
+  const handleMobileUser = () => {
+    if (!user._id) return navigate("/login")
+    navigate("/user")
+  }
 
-        navigate("/user")
-    }
-
-    const handleHomeClick = () => {
-        navigate('/', { replace: true });
-    }
+  const handleHomeClick = () => navigate('/', { replace: true })
 
   return (
-    <header className='min-h-[88px] lg:h-20 lg:shadow-md sticky top-0 z-50 flex flex-col justify-center gap-0 bg-white'>
-        {
-            !(isSearchPage && isMobile) && (
-                <div className='container mx-auto flex items-center px-2 justify-between py-2'>
-                    {/**logo */}
-                    <div className='h-full flex items-center gap-20'>
-                        <Link to={"/"} className='h-full flex justify-center items-center'>
-                            <img 
-                                src={logo}
-                                width={250}
-                                height={120}
-                                alt='logo'
-                                className='hidden lg:block mt-5'
-                            />
-                            <img 
-                                src={logo}
-                                width={120}
-                                height={60}
-                                alt='logo'
-                                className='lg:hidden mt-2 w-[160px] h-[70px] '
-                            />
-                        </Link>
-                        <button 
-                            onClick={handleHomeClick}
-                            className='flex items-center gap-2 text-green-800 hover:text-green-700 px-3 py-2 rounded hover:bg-green-50'
-                        >
-                            <FaHome size={25} className='flex align-left' />
-                            <span className='hidden lg:inline'>Home</span>
-                        </button>
-                    </div>
+    <header className="h-16 lg:h-20 sticky flex items-top justify-top top-0 z-50 bg-white border-b shadow-sm">
+      {
+        !(isSearchPage && isMobile) && (
+          <div className="container mx-auto flex items-center justify-between">
+            {/* Logo + Home */}
+            <div className="flex items-center gap-6">
+              <Link to="/" className="flex items-center">
+                <img
+                  src={logo}
+                  alt="logo"
+                  className="hidden lg:block w-[250px] h-auto"
+                />
+                <img
+                  src={logo}
+                  alt="logo"
+                  className="lg:hidden w-[160px] h-auto "
+                />
+              </Link>
+              <button
+                onClick={handleHomeClick}
+                className="flex items-center gap-2 text-green-800 hover:text-green-700 px-3 py-2 rounded-md hover:bg-green-100 transition"
+              >
+                <Home size={22} />
+                <span className="hidden lg:inline text-sm font-medium">Home</span>
+              </button>
+            </div>
 
-                    {/**Search */}
-                    <div className='hidden lg:block'>
-                        <Search/>
-                    </div>
+            {/* Search (Desktop) */}
+            <div className="hidden lg:block w-full max-w-xl">
+              <Search />
+            </div>
 
-                    {/**login and my cart */}
-                    <div className='flex items-center gap-4'>
-                        {/**user icons display in only mobile version**/}
-                        <button className='text-neutral-600 lg:hidden' onClick={handleMobileUser}>
-                            <FaRegCircleUser size={26}/>
-                        </button>
+            {/* User + Cart */}
+            <div className="flex items-center gap-4">
+              {/* Mobile User Icon */}
+              <button className="text-neutral-600 lg:hidden flex items-center" onClick={handleMobileUser}>
+                <UserRound size={26} />
+              </button>
 
-                        {/**Desktop**/}
-                        <div className='hidden lg:flex items-center gap-4'>
-                            {
-                                user?._id ? (
-                                    <div className='relative'>
-                                        <div onClick={()=>setOpenUserMenu(preve => !preve)} className='flex select-none items-center gap-1 cursor-pointer'>
-                                            <p>Account</p>
-                                            {
-                                                openUserMenu ? (
-                                                      <GoTriangleUp size={25}/> 
-                                                ) : (
-                                                    <GoTriangleDown size={25}/>
-                                                )
-                                            }
-                                           
-                                        </div>
-                                        {
-                                            openUserMenu && (
-                                                <div className='absolute right-0 top-12'>
-                                                    <div className='bg-white rounded p-4 min-w-52 lg:shadow-lg'>
-                                                        <UserMenu close={handleCloseUserMenu}/>
-                                                    </div>
-                                                </div>
-                                            )
-                                        }
-                                        
-                                    </div>
-                                ) : (
-                                    <button onClick={redirectToLoginPage} className='text-lg px-2'>Login</button>
-                                )
-                            }
+              {/* Desktop User + Cart */}
+              <div className="hidden lg:flex items-center gap-5">
+                {
+                  user?._id ? (
+                    <div className="relative">
+                      <div
+                        onClick={() => setOpenUserMenu(prev => !prev)}
+                        className="flex items-center gap-1 cursor-pointer select-none text-sm font-medium"
+                      >
+                        <span>Account</span>
+                        {openUserMenu ? <GoTriangleUp size={20} /> : <GoTriangleDown size={20} />}
+                      </div>
 
-
-                            {/*this section is to open the cart from the home screen after items added to cart */}
-                            <button onClick={()=>openCartSection(true)} className='flex items-center gap-2 bg-green-800 hover:bg-green-700 px-3 py-2 rounded text-white'>
-                                {/**add to card icons */}
-                                <div className='animate-bounce'>
-                                    <BsCart4 size={26}/>
-                                </div>
-                                <div className='font-semibold text-sm'>
-                                    {
-                                        totalQty > 0 ? (
-                                            <div>
-                                                <p>{totalQty} Items</p>
-                                                <p>{DisplayPriceInRupees(totalPrice)}</p>
-                                            </div>
-                                        ) : (
-                                            <p>My Cart</p>
-                                        )
-                                    }
-                                </div>    
-                            </button>
+                      {openUserMenu && (
+                        <div className="absolute right-0 top-10 z-10">
+                          <div className="bg-white rounded-xl p-4 min-w-52 shadow-lg border border-gray-200">
+                            <UserMenu close={handleCloseUserMenu} />
+                          </div>
                         </div>
+                      )}
                     </div>
-                </div>
-            )
-        }
-        
-        <div className='container mx-auto px-2 pb-2 lg:hidden'>
-            <Search/>
-        </div>
+                  ) : (
+                    <button
+                      onClick={redirectToLoginPage}
+                      className="text-sm font-medium px-3 py-1 rounded-md hover:text-green-800 transition"
+                    >
+                      Login
+                    </button>
+                  )
+                }
+
+                {/* Cart Button */}
+                <button
+                  onClick={() => openCartSection(true)}
+                  className="flex items-center gap-2 bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded-xl transition shadow-sm"
+                >
+                  <BsCart4 size={24} className="animate-bounce" />
+                  <div className="text-left text-sm font-medium leading-tight">
+                    {totalQty > 0 ? (
+                      <>
+                        <p>{totalQty} Item{totalQty > 1 && 's'}</p>
+                        <p>{DisplayPriceInRupees(totalPrice)}</p>
+                      </>
+                    ) : (
+                      <p>My Cart</p>
+                    )}
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+      {/* Search (Mobile) */}
+      <div className="container mx-auto px-4 py-2 lg:hidden">
+        <Search />
+      </div>
     </header>
   )
 }

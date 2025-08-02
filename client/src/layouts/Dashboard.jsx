@@ -6,21 +6,25 @@ import { useSelector } from 'react-redux'
 const Dashboard = () => {
   const user = useSelector(state => state.user)
 
-  console.log("user dashboard",user)
+  console.log("user dashboard", user)
+
   return (
-    <section className='bg-white'>
-        <div className='container mx-auto p-3 grid lg:grid-cols-[250px,1fr]  '>
-                {/**left for menu */}
-                <div className='py-4 sticky top-24 max-h-[calc(100vh-96px)] overflow-y-auto hidden lg:block border-r'>
-                    <UserMenu/>
-                </div>
+    <section className='bg-gray-50 min-h-screen'>
+      <div className='container mx-auto px-4 py-6 grid lg:grid-cols-[250px_1fr] gap-6'>
+        
+        {/* Sidebar */}
+        <aside className='hidden lg:block sticky top-24 max-h-[calc(100vh-96px)] overflow-y-auto border-r border-gray-200 bg-white rounded-lg shadow-sm'>
+          <div className='p-4'>
+            <UserMenu />
+          </div>
+        </aside>
 
+        {/* Main content */}
+        <main className='bg-white rounded-lg shadow-sm p-4 min-h-[75vh]'>
+          <Outlet />
+        </main>
 
-                {/**right for content */}
-                <div className='bg-white min-h-[75vh] '>
-                    <Outlet/>
-                </div>
-        </div>
+      </div>
     </section>
   )
 }

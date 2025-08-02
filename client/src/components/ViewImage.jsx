@@ -1,19 +1,25 @@
 import React from 'react'
 import { IoClose } from 'react-icons/io5'
 
-const ViewImage = ({url,close}) => {
+const ViewImage = ({ url, close }) => {
   return (
-    <div className='fixed top-0 bottom-0 right-0 left-0 bg-neutral-900 bg-opacity-70 flex justify-center items-center z-50 p-4'>
-        <div className='w-full max-w-md max-h-[80vh] p-4 bg-white'>
-            <button onClick={close} className='w-fit ml-auto block'>
-                <IoClose size={25}/>
-            </button>
-            <img 
-                src={url}
-                alt='full screen'
-                className='w-full h-full object-scale-down'
-            />
+    <div className='fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 p-4'>
+      <div className='relative w-full max-w-2xl bg-white rounded-xl shadow-2xl p-4'>
+        <button
+          onClick={close}
+          className='absolute top-3 right-3 text-gray-500 hover:text-red-500 transition'
+        >
+          <IoClose size={24} />
+        </button>
+
+        <div className='max-h-[80vh] overflow-hidden flex justify-center items-center'>
+          <img
+            src={url}
+            alt='Full View'
+            className='max-h-[70vh] w-auto object-contain rounded-md'
+          />
         </div>
+      </div>
     </div>
   )
 }

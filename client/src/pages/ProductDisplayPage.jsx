@@ -166,253 +166,205 @@ const ProductDisplayPage = () => {
   }, [data.image]); // Re-run when images change
 
   return (
-    <section className='container mx-auto p-4 grid lg:grid-cols-2 '>
-        <div className=''>
-            <div className='bg-white lg:min-h-[65vh] lg:max-h-[65vh] rounded min-h-56 max-h-56 h-full w-full relative'>
-                {data.image[image] && (
-                    <img
-                        src={data.image[image]}
-                        className='w-full h-full object-scale-down'
-                        alt={data.name}
-                    />
-                )}
-            </div>
-            <div className='flex items-center justify-center gap-3 my-2'>
-              {data.image.map((img,index)=>{
-                return(
-                  <button
-                    key={img+index+"point"}
-                    onClick={()=>setImage(index)}
-                    className={`w-3 h-3 lg:w-4 lg:h-4 rounded-full transition-all duration-200 ${
-                      index === image ? "bg-primary-200 scale-125" : "bg-slate-200 hover:bg-slate-300"
-                    }`}
-                    aria-label={`View image ${index + 1}`}
-                  />
-                )
-              })}
-            </div>
-            <div className='grid relative mt-4'>
-                <div 
-                    ref={imageContainer} 
-                    className='flex gap-4 overflow-x-auto scrollbar-none scroll-smooth snap-x snap-mandatory'
-                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                >
-                      {data.image.map((img,index)=>{
-                        return(
-                          <div 
-                            key={img+index}
-                            className='w-20 h-20 min-h-20 min-w-20 cursor-pointer shadow-md rounded-lg overflow-hidden snap-start flex-shrink-0 transition-transform duration-200 hover:scale-105'
-                            onClick={()=>setImage(index)}
-                          >
-                            <img
-                                src={img}
-                                alt={`${data.name} - Image ${index + 1}`}
-                                className={`w-full h-full object-scale-down ${
-                                    index === image ? 'ring-2 ring-primary-200' : ''
-                                }`}
-                            />
-                          </div>
-                        )
-                      })}
-                </div>
-                <div className='absolute inset-y-0 left-0 right-0 flex items-center justify-between pointer-events-none'>
-                    <button 
-                        onClick={handleScrollLeft}
-                        className='scroll-left-button bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-all duration-200 opacity-0 pointer-events-none ml-2'
-                        aria-label="Scroll left"
-                    >
-                        <FaAngleLeft className="text-lg" />
-                    </button>
-                    <button 
-                        onClick={handleScrollRight}
-                        className='scroll-right-button bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-all duration-200 opacity-0 pointer-events-none mr-2'
-                        aria-label="Scroll right"
-                    >
-                        <FaAngleRight className="text-lg" />
-                    </button>
-                </div>
-            </div>
-            <div>
-            </div>
+    <section className='container mx-auto p-4 grid lg:grid-cols-2 gap-6'>
+  <div className='space-y-4'>
+    {/* Main Image */}
+    <div className='bg-white rounded-xl overflow-hidden shadow-md min-h-56 max-h-56 lg:min-h-[65vh] lg:max-h-[65vh]'>
+      {data.image[image] && (
+        <img
+          src={data.image[image]}
+          className='w-full h-full object-contain'
+          alt={data.name}
+        />
+      )}
+    </div>
 
-            <div className='my-4  hidden lg:grid gap-3 '>
-                {data.description && (
-                    <div>
-                        <p className='font-semibold'>Description</p>
-                        <p className='text-base'>{data.description}</p>
-                    </div>
-                )}
-                {data.unit && (
-                    <div>
-                        <p className='font-semibold'>Unit</p>
-                        <p className='text-base'>{data.unit}</p>
-                    </div>
-                )}
-                {
-                  data?.more_details && Object.keys(data?.more_details)
-                    .filter(element => {
-                        // Only show fields that have content and are in allowed categories
-                        const hasContent = data?.more_details[element] && 
-                            (typeof data?.more_details[element] === 'string' ? 
-                                data?.more_details[element].trim() !== '' :
-                                Array.isArray(data?.more_details[element]) ? 
-                                    data?.more_details[element].length > 0 :
-                                    Object.keys(data?.more_details[element] || {}).length > 0);
-                        return hasContent && ALLOWED_CATEGORIES.includes(element);
-                    })
-                    .map((element, index) => {
-                        return(
-                            <div key={`more-details-${element}-${index}`}>
-                                <p className='font-semibold'>{element}</p>
-                                <p className='text-base'>
-                                    {element === 'customerCare' ? 
-                                        data?.more_details[element]?.email : 
-                                        Array.isArray(data?.more_details[element]) ?
-                                            data?.more_details[element].join(', ') :
-                                            data?.more_details[element]}
-                                </p>
-                            </div>
-                        )
-                    })
-                }
-            </div>
+    {/* Image dots */}
+    <div className='flex items-center justify-center gap-2'>
+      {data.image.map((img, index) => (
+        <button
+          key={img + index + "dot"}
+          onClick={() => setImage(index)}
+          className={`w-3 h-3 lg:w-4 lg:h-4 rounded-full transition-all duration-200 ${
+            index === image ? "bg-primary-500 scale-125" : "bg-gray-300 hover:bg-gray-400"
+          }`}
+          aria-label={`View image ${index + 1}`}
+        />
+      ))}
+    </div>
+
+    {/* Horizontal thumbnails */}
+    <div className='relative'>
+      <div
+        ref={imageContainer}
+        className='flex gap-3 overflow-x-auto scrollbar-none snap-x snap-mandatory scroll-smooth'
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {data.image.map((img, index) => (
+          <div
+            key={img + index}
+            onClick={() => setImage(index)}
+            className='min-w-20 min-h-20 w-20 h-20 cursor-pointer rounded-lg overflow-hidden flex-shrink-0 border border-gray-200 hover:scale-105 transition-transform duration-200 snap-start'
+          >
+            <img
+              src={img}
+              className={`w-full h-full object-contain ${index === image ? 'ring-2 ring-primary-500' : ''}`}
+              alt={`Thumbnail ${index}`}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Scroll buttons */}
+      <div className='absolute inset-y-0 left-0 right-0 flex items-center justify-between pointer-events-none'>
+        <button
+          onClick={handleScrollLeft}
+          className='scroll-left-button bg-white shadow-md p-2 rounded-full ml-2 opacity-0 pointer-events-none hover:scale-105 transition'
+          aria-label="Scroll left"
+        >
+          <FaAngleLeft />
+        </button>
+        <button
+          onClick={handleScrollRight}
+          className='scroll-right-button bg-white shadow-md p-2 rounded-full mr-2 opacity-0 pointer-events-none hover:scale-105 transition'
+          aria-label="Scroll right"
+        >
+          <FaAngleRight />
+        </button>
+      </div>
+    </div>
+
+    {/* Description (Desktop) */}
+    <div className='hidden lg:grid gap-4'>
+      {data.description && (
+        <div>
+          <h3 className='font-semibold text-lg mb-1'>Description</h3>
+          <p className='text-gray-700'>{data.description}</p>
         </div>
+      )}
+      {data.unit && (
+        <div>
+          <h3 className='font-semibold text-lg mb-1'>Unit</h3>
+          <p className='text-gray-700'>{data.unit}</p>
+        </div>
+      )}
+      {data?.more_details &&
+        Object.keys(data?.more_details)
+          .filter(key =>
+            ALLOWED_CATEGORIES.includes(key) &&
+            data.more_details[key] &&
+            (typeof data.more_details[key] === 'string'
+              ? data.more_details[key].trim()
+              : Array.isArray(data.more_details[key])
+              ? data.more_details[key].length > 0
+              : Object.keys(data.more_details[key]).length > 0)
+          )
+          .map((key, idx) => (
+            <div key={`details-${key}-${idx}`}>
+              <h3 className='font-semibold text-lg'>{key}</h3>
+              <p className='text-gray-700'>
+                {Array.isArray(data.more_details[key])
+                  ? data.more_details[key].join(', ')
+                  : data.more_details[key]}
+              </p>
+            </div>
+          ))}
+    </div>
+  </div>
 
+  {/* Right section */}
+  <div className='p-4 space-y-6'>
+    <div className='flex items-center gap-2'>
+      <span className='bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium'>10 Min</span>
+    </div>
 
-        <div className='p-4 lg:pl-7 text-base lg:text-lg'>
-            <p className='bg-green-300 w-fit px-2 rounded-full'>10 Min</p>
-            <h2 className='text-lg font-semibold lg:text-3xl'>{data.name}</h2>  
-            <p className=''>{data.unit}</p> 
-            <Divider/>
+    <div>
+      <h1 className='text-2xl font-bold text-gray-900'>{data.name}</h1>
+      <p className='text-gray-500 text-base'>{data.unit}</p>
+    </div>
+
+    <Divider />
+
+    <div>
+      <p className='text-gray-700'>Price</p>
+      <div className='flex items-center gap-3 mt-1'>
+        <span className='bg-green-50 text-green-700 border border-green-600 px-4 py-2 rounded text-xl font-semibold'>
+          {DisplayPriceInRupees(pricewithDiscount(data.price, data.discount))}
+        </span>
+        {data.discount && (
+          <>
+            <span className='line-through text-gray-400'>{DisplayPriceInRupees(data.price)}</span>
+            <span className='text-green-600 font-bold text-lg'>{data.discount}% <span className='text-sm'>off</span></span>
+          </>
+        )}
+      </div>
+    </div>
+
+    {data.stock === 0 ? (
+      <p className='text-red-600 font-semibold'>Out of Stock</p>
+    ) : (
+      <div className='pt-4'>
+        <AddToCartButton data={data} />
+      </div>
+    )}
+
+    {/* Why shop section */}
+    <div>
+      <h3 className='font-semibold text-xl mb-3'>Why shop from Binkeet?</h3>
+      {[image1, image2, image3].map((img, idx) => {
+        const captions = [
+          { title: 'Superfast Delivery', desc: 'Delivered in minutes from dark stores near you.' },
+          { title: 'Best Prices & Offers', desc: 'Exclusive deals direct from manufacturers.' },
+          { title: 'Wide Assortment', desc: 'Choose from 5000+ products across categories.' }
+        ]
+        return (
+          <div className='flex items-start gap-4 mb-4' key={`why-${idx}`}>
+            <img src={img} alt={captions[idx].title} className='w-16 h-16 object-contain' />
             <div>
-              <p className=''>Price</p> 
-              <div className='flex items-center gap-2 lg:gap-4'>
-                <div className='border border-green-600 px-4 py-2 rounded bg-green-50 w-fit'>
-                    <p className='font-semibold text-lg lg:text-xl'>{DisplayPriceInRupees(pricewithDiscount(data.price,data.discount))}</p>
-                </div>
-                {
-                  data.discount && (
-                    <p className='line-through'>{DisplayPriceInRupees(data.price)}</p>
-                  )
-                }
-                {
-                  data.discount && (
-                    <p className="font-bold text-green-600 lg:text-2xl">{data.discount}% <span className='text-base text-neutral-500'>Discount</span></p>
-                  )
-                }
-                
+              <h4 className='font-medium text-gray-800'>{captions[idx].title}</h4>
+              <p className='text-sm text-gray-600'>{captions[idx].desc}</p>
+            </div>
+          </div>
+        )
+      })}
+    </div>
+
+    {/* Mobile Description Toggle */}
+    <div className='lg:hidden'>
+      <button
+        onClick={() => setShowMobileDescription(!showMobileDescription)}
+        className='w-full flex justify-between items-center p-3 rounded-lg bg-gray-100 hover:bg-gray-200'
+      >
+        <span className='font-semibold'>View Description</span>
+        <span className='text-gray-500 text-sm'>{showMobileDescription ? 'Hide' : 'Show'}</span>
+      </button>
+
+      {showMobileDescription && (
+        <div className='bg-white p-4 mt-3 rounded-lg shadow'>
+          {[data.description && { label: 'Description', value: data.description },
+            data.unit && { label: 'Unit', value: data.unit },
+            ...Object.entries(data.more_details || {})
+              .filter(([key, val]) =>
+                ALLOWED_CATEGORIES.includes(key) &&
+                (typeof val === 'string' ? val.trim() : Array.isArray(val) ? val.length : Object.keys(val).length))
+              .map(([key, val]) => ({
+                label: key,
+                value: Array.isArray(val) ? val.join(', ') : val
+              }))
+          ]
+            .filter(Boolean)
+            .map(({ label, value }, i) => (
+              <div key={`mobile-detail-${i}`} className='mb-2'>
+                <p className='font-semibold text-sm'>{label}</p>
+                <p className='text-sm text-gray-600'>{value}</p>
               </div>
-
-            </div> 
-              
-              {
-                data.stock === 0 ? (
-                  <p className='text-lg text-red-500 my-2'>Out of Stock</p>
-                ) 
-                : (
-                  // <button className='my-4 px-4 py-1 bg-green-600 hover:bg-green-700 text-white rounded'>Add</button>
-                  <div className='my-4'>
-                    <AddToCartButton data={data}/>
-                  </div>
-                )
-              }
-           
-
-            <h2 className='font-semibold'>Why shop from binkeet? </h2>
-            <div>
-                  <div className='flex  items-center gap-4 my-4'>
-                      <img
-                        src={image1}
-                        alt='superfast delivery'
-                        className='w-20 h-20'
-                      />
-                      <div className='text-sm'>
-                        <div className='font-semibold'>Superfast Delivery</div>
-                        <p>Get your orer delivered to your doorstep at the earliest from dark stores near you.</p>
-                      </div>
-                  </div>
-                  <div className='flex  items-center gap-4 my-4'>
-                      <img
-                        src={image2}
-                        alt='Best prices offers'
-                        className='w-20 h-20'
-                      />
-                      <div className='text-sm'>
-                        <div className='font-semibold'>Best Prices & Offers</div>
-                        <p>Best price destination with offers directly from the nanufacturers.</p>
-                      </div>
-                  </div>
-                  <div className='flex  items-center gap-4 my-4'>
-                      <img
-                        src={image3}
-                        alt='Wide Assortment'
-                        className='w-20 h-20'
-                      />
-                      <div className='text-sm'>
-                        <div className='font-semibold'>Wide Assortment</div>
-                        <p>Choose from 5000+ products across food personal care, household & other categories.</p>
-                      </div>
-                  </div>
-            </div>
- 
-            {/****only mobile  */}
-            <div className='lg:hidden my-4'>
-                <button 
-                    onClick={() => setShowMobileDescription(!showMobileDescription)}
-                    className='w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-2'
-                >
-                    <span className='font-semibold'>View Description</span>
-                    <span className='text-gray-500'>
-                        {showMobileDescription ? 'Hide' : 'Show'}
-                    </span>
-                </button>
-                
-                {showMobileDescription && (
-                    <div className='grid gap-3 bg-white p-4 rounded-lg shadow-sm'>
-                        {data.description && (
-                            <div>
-                                <p className='font-semibold'>Description</p>
-                                <p className='text-base'>{data.description}</p>
-                            </div>
-                        )}
-                        {data.unit && (
-                            <div>
-                                <p className='font-semibold'>Unit</p>
-                                <p className='text-base'>{data.unit}</p>
-                            </div>
-                        )}
-                        {
-                            data?.more_details && Object.keys(data?.more_details)
-                                .filter(element => {
-                                    // Only show fields that have content and are in allowed categories
-                                    const hasContent = data?.more_details[element] && 
-                                        (typeof data?.more_details[element] === 'string' ? 
-                                            data?.more_details[element].trim() !== '' :
-                                            Array.isArray(data?.more_details[element]) ? 
-                                                data?.more_details[element].length > 0 :
-                                                Object.keys(data?.more_details[element] || {}).length > 0);
-                                    return hasContent && ALLOWED_CATEGORIES.includes(element);
-                                })
-                                .map((element, index) => {
-                                    return(
-                                        <div key={`more-details-${element}-${index}`}>
-                                            <p className='font-semibold'>{element}</p>
-                                            <p className='text-base'>
-                                                {element === 'customerCare' ? 
-                                                    data?.more_details[element]?.email : 
-                                                    Array.isArray(data?.more_details[element]) ?
-                                                        data?.more_details[element].join(', ') :
-                                                        data?.more_details[element]}
-                                            </p>
-                                        </div>
-                                    )
-                                })
-                        }
-                    </div>
-                )}
-            </div>
+            ))}
         </div>
-    </section>
+      )}
+    </div>
+  </div>
+</section>
+
   )
 }
 

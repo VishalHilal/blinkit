@@ -68,179 +68,153 @@ const CheckoutPage = () => {
   }
 
   return (
-    <section className='bg-blue-50'>
-      <div className='container mx-auto p-4 flex flex-col lg:flex-row w-full gap-5 justify-between'>
-        <div className='w-full'>
-          {/***address***/}
-          <h3 className='text-lg font-semibold mb-4'>Choose your address</h3>
-          <div className='bg-white p-4 rounded-lg shadow-sm'>
-            {addressList.length === 0 ? (
-                <div className='text-center p-4 text-gray-600'>
-                    No delivery addresses found. Please add an address to continue.
-                </div>
-            ) : (
-                addressList.map((address, index) => {
-                    return (
-                        <label key={address._id} htmlFor={"address" + index} className={address.status ? undefined : "hidden"}>
-                            <div className='border rounded p-3 flex gap-3 hover:bg-blue-50 mb-3'>
-                                <div>
-                                    <input 
-                                        id={"address" + index} 
-                                        type='radio' 
-                                        value={index} 
-                                        onChange={(e) => setSelectAddress(e.target.value)} 
-                                        name='address'
-                                        checked={Number(selectAddress) === index}
-                                        className="w-4 h-4"
-                                    />
-                                </div>
-                                <div className="text-gray-700">
-                                    <p className="font-medium">{address.address_line}</p>
-                                    <p>{address.city}</p>
-                                    <p>{address.state}</p>
-                                    <p>{address.country} - {address.pincode}</p>
-                                    <p className="font-medium">{address.mobile}</p>
-                                </div>
-                            </div>
-                        </label>
-                    )
-                })
-            )}
-            <div 
-                onClick={() => setOpenAddress(true)} 
-                className='h-16 bg-blue-50 border-2 border-dashed flex justify-center items-center cursor-pointer hover:bg-blue-100 transition-colors rounded-lg'
+    <section className="bg-blue-50 min-h-screen py-8">
+  <div className="container mx-auto px-4 flex flex-col lg:flex-row gap-6">
+    {/* Left: Address Section */}
+    <div className="w-full">
+      <h3 className="text-xl font-semibold mb-4 text-gray-800">Choose your Address</h3>
+      <div className="bg-white p-5 rounded-2xl shadow-md">
+        {addressList.length === 0 ? (
+          <div className="text-center py-6 text-gray-500 text-sm">
+            No delivery addresses found. Please add one to continue.
+          </div>
+        ) : (
+          addressList.map((address, index) => (
+            <label
+              key={address._id}
+              htmlFor={`address${index}`}
+              className={address.status ? "block" : "hidden"}
             >
-                {addressList.length === 0 ? 'Add your first address' : 'Add another address'}
-            </div>
-          </div>
-        </div>
-
-        <div className='w-full max-w-md'>
-          {/**summary**/}
-          <div className='bg-white rounded-lg shadow-sm p-4 mb-4'>
-            <h3 className='text-lg font-semibold mb-4'>Summary</h3>
-            <div className='space-y-3'>
-              <div className='flex justify-between text-gray-700'>
-                <p>Items total</p>
-                <p className='flex items-center gap-2'>
-                  <span className='line-through text-neutral-400'>{DisplayPriceInRupees(notDiscountTotalPrice)}</span>
-                  <span className="font-medium">{DisplayPriceInRupees(totalPrice)}</span>
-                </p>
-              </div>
-              <div className='flex justify-between text-gray-700'>
-                <p>Quantity total</p>
-                <p className='font-medium'>{totalQty} items</p>
-              </div>
-              <div className='flex justify-between text-gray-700'>
-                <p>Delivery Charge</p>
-                <p className='font-medium'>Free</p>
-              </div>
-              <div className='border-t pt-3 flex justify-between items-center'>
-                <p className='font-bold text-gray-800'>Grand total</p>
-                <p className='font-bold text-lg text-gray-800'>{DisplayPriceInRupees(totalPrice)}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Payment Methods */}
-          {/* card payment method  */}
-          <div className='bg-white rounded-lg shadow-sm p-4'>
-            <h3 className='text-lg font-semibold mb-4'>Payment Method</h3>
-            <div className='space-y-4'>
-              <div className='flex items-center gap-3'>
+              <div className={`border rounded-xl px-4 py-3 mb-3 flex items-start gap-3 transition hover:bg-blue-50`}>
                 <input
+                  id={`address${index}`}
                   type="radio"
-                  id="card"
-                  name="payment"
-                  value="card"
-                  checked={paymentMethod === 'card'}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="w-4 h-4"
+                  value={index}
+                  onChange={(e) => setSelectAddress(e.target.value)}
+                  name="address"
+                  checked={Number(selectAddress) === index}
+                  className="mt-1 w-5 h-5 accent-blue-600"
                 />
-                <label htmlFor="card" className='font-medium text-gray-700'>Credit/Debit Card</label>
-              </div>
-
-              {/* upi payment method */}
-              <div className='flex items-center gap-3'>
-                <input
-                  type="radio"
-                  id="upi"
-                  name="payment"
-                  value="upi"
-                  checked={paymentMethod === 'upi'}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="w-4 h-4"
-                />
-                <label htmlFor="upi" className='font-medium text-gray-700'>UPI Payment</label>
-              </div>
-
-              {/* cash on delivery  method */}
-              <div className='flex items-center gap-3'>
-                <input
-                  type="radio"
-                  id="cod"
-                  name="payment"
-                  value="cod"
-                  checked={paymentMethod === 'cod'}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="w-4 h-4"
-                />
-                <label htmlFor="cod" className='font-medium text-gray-700'>Cash on Delivery</label>
-              </div>
-
-              {paymentMethod === 'cod' ? (
-                <button 
-                  onClick={handleCashOnDelivery}
-                  className='w-full py-3 px-4 border-2 border-green-600 font-bold text-green-600 hover:bg-green-600 hover:text-white rounded-md transition-all transform hover:scale-[1.02] shadow-sm'
-                >
-                  Pay on Delivery
-                </button>
-              ) : (
-                <div className='mt-4'>
-                  {!addressList[selectAddress]?._id ? (
-                    <div className='text-center p-4 bg-red-50 text-red-600 rounded-md'>
-                      Please add and select a delivery address first
-                    </div>
-                  ) : (
-                    <>
-                      {paymentMethod === 'card' && (
-                        <StripePayment
-                          amount={totalPrice}
-                          addressId={addressList[selectAddress]?._id}
-                          cartItems={cartItemsList}
-                          user={user}
-                          address={addressList[selectAddress]}
-                          onSuccess={async () => {
-                            if (fetchCartItem) await fetchCartItem();
-                            if (fetchOrder) await fetchOrder();
-                          }}
-                        />
-                      )}
-
-                      {paymentMethod === 'upi' && (
-                        <UPIPayment
-                          amount={totalPrice}
-                          addressId={addressList[selectAddress]?._id}
-                          cartItems={cartItemsList}
-                          onSuccess={async () => {
-                            if (fetchCartItem) await fetchCartItem();
-                            if (fetchOrder) await fetchOrder();
-                          }}
-                        />
-                      )}
-                    </>
-                  )}
+                <div className="text-gray-700 text-sm">
+                  <p className="font-semibold">{address.address_line}</p>
+                  <p>{address.city}, {address.state}</p>
+                  <p>{address.country} - {address.pincode}</p>
+                  <p className="font-medium mt-1">{address.mobile}</p>
                 </div>
-              )}
-            </div>
+              </div>
+            </label>
+          ))
+        )}
+        <div
+          onClick={() => setOpenAddress(true)}
+          className="mt-4 h-16 bg-blue-100/40 border-2 border-dashed border-blue-300 flex justify-center items-center rounded-xl text-blue-600 cursor-pointer hover:bg-blue-200/40 transition-all"
+        >
+          {addressList.length === 0 ? 'Add your first address' : 'Add another address'}
+        </div>
+      </div>
+    </div>
+
+    {/* Right: Summary + Payment */}
+    <div className="w-full max-w-md space-y-5">
+      {/* Order Summary */}
+      <div className="bg-white rounded-2xl shadow-md p-5">
+        <h3 className="text-xl font-semibold mb-4 text-gray-800">Order Summary</h3>
+        <div className="space-y-4 text-sm text-gray-700">
+          <div className="flex justify-between">
+            <p>Items Total</p>
+            <p className="flex items-center gap-2">
+              <span className="line-through text-neutral-400">{DisplayPriceInRupees(notDiscountTotalPrice)}</span>
+              <span className="font-semibold">{DisplayPriceInRupees(totalPrice)}</span>
+            </p>
+          </div>
+          <div className="flex justify-between">
+            <p>Total Quantity</p>
+            <p className="font-medium">{totalQty} items</p>
+          </div>
+          <div className="flex justify-between">
+            <p>Delivery Charge</p>
+            <p className="font-medium text-green-600">Free</p>
+          </div>
+          <div className="border-t pt-4 flex justify-between items-center font-bold text-gray-800">
+            <p>Grand Total</p>
+            <p className="text-lg">{DisplayPriceInRupees(totalPrice)}</p>
           </div>
         </div>
       </div>
 
-      {openAddress && (
-        <AddAddress close={() => setOpenAddress(false)} />
-      )}
-    </section>
+      {/* Payment Method */}
+      <div className="bg-white rounded-2xl shadow-md p-5">
+        <h3 className="text-xl font-semibold mb-4 text-gray-800">Payment Method</h3>
+        <div className="space-y-4 text-sm text-gray-700">
+          {['card', 'upi', 'cod'].map((method) => (
+            <div className="flex items-center gap-3" key={method}>
+              <input
+                type="radio"
+                id={method}
+                name="payment"
+                value={method}
+                checked={paymentMethod === method}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+                className="w-4 h-4 accent-blue-600"
+              />
+              <label htmlFor={method} className="capitalize">{method === 'cod' ? 'Cash on Delivery' : `${method.toUpperCase()} Payment`}</label>
+            </div>
+          ))}
+
+          {/* Payment UI */}
+          <div className="mt-5">
+            {paymentMethod === 'cod' ? (
+              <button
+                onClick={handleCashOnDelivery}
+                className="w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl shadow-sm transition-transform transform hover:scale-[1.02]"
+              >
+                Pay on Delivery
+              </button>
+            ) : (
+              !addressList[selectAddress]?._id ? (
+                <div className="text-center p-4 bg-red-100 text-red-600 rounded-xl text-sm">
+                  Please add and select a delivery address first
+                </div>
+              ) : (
+                <>
+                  {paymentMethod === 'card' && (
+                    <StripePayment
+                      amount={totalPrice}
+                      addressId={addressList[selectAddress]?._id}
+                      cartItems={cartItemsList}
+                      user={user}
+                      address={addressList[selectAddress]}
+                      onSuccess={async () => {
+                        if (fetchCartItem) await fetchCartItem();
+                        if (fetchOrder) await fetchOrder();
+                      }}
+                    />
+                  )}
+                  {paymentMethod === 'upi' && (
+                    <UPIPayment
+                      amount={totalPrice}
+                      addressId={addressList[selectAddress]?._id}
+                      cartItems={cartItemsList}
+                      onSuccess={async () => {
+                        if (fetchCartItem) await fetchCartItem();
+                        if (fetchOrder) await fetchOrder();
+                      }}
+                    />
+                  )}
+                </>
+              )
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {openAddress && (
+    <AddAddress close={() => setOpenAddress(false)} />
+  )}
+</section>
+
   )
 }
 

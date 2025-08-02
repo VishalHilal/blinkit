@@ -1,29 +1,42 @@
-import React from 'react'
+import React from 'react';
 import { IoClose } from "react-icons/io5";
 
-const AddFieldComponent = ({close,value,onChange,submit}) => {
+const AddFieldComponent = ({ close, value, onChange, submit }) => {
   return (
-   <section className='fixed top-0 bottom-0 right-0 left-0 bg-neutral-900 bg-opacity-70 z-50 flex justify-center items-center p-4'>
-        <div className='bg-white rounded p-4 w-full max-w-md'>
-            <div className='flex items-center justify-between gap-3'>
-                <h1 className='font-semibold'>Add Field</h1>
-                <button onClick={close}>
-                    <IoClose size={25}/>
-                </button>
-            </div>
-            <input
-                 className='bg-blue-50 my-3 p-2 border outline-none focus-within:border-primary-100 rounded w-full '
-                 placeholder='Enter field name'
-                 value={value}
-                 onChange={onChange}
-            />
-            <button
-                onClick={submit}
-                className='bg-primary-200 hover:bg-primary-100 px-4 py-2 rounded mx-auto w-fit block'
-            >Add Field</button>
+    <section className="fixed inset-0 z-50 bg-black bg-opacity-60 flex justify-center items-center px-4">
+      <div className="bg-white w-full max-w-md rounded-xl shadow-xl p-6 sm:p-8 animate-fadeInUp">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-lg font-semibold text-gray-800">Add Field</h2>
+          <button
+            onClick={close}
+            className="text-gray-600 hover:text-red-500 transition"
+            aria-label="Close"
+          >
+            <IoClose size={24} />
+          </button>
         </div>
-   </section>
-  )
-}
 
-export default AddFieldComponent
+        {/* Input Field */}
+        <div className="mb-5">
+          <input
+            className="w-full p-3 rounded-md border text-sm bg-gray-50 border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-200 transition"
+            placeholder="Enter field name"
+            value={value}
+            onChange={onChange}
+          />
+        </div>
+
+        {/* Submit Button */}
+        <button
+          onClick={submit}
+          className="w-full py-3 rounded-md bg-green-600 hover:bg-green-700 text-white font-medium text-sm transition duration-200 shadow-sm hover:shadow-md"
+        >
+          Add Field
+        </button>
+      </div>
+    </section>
+  );
+};
+
+export default AddFieldComponent;

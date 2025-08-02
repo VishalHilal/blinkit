@@ -8,19 +8,20 @@ import { useSelector } from 'react-redux'
 import AddToCartButton from './AddToCartButton'
 import { pricewithDiscount } from '../utils/PriceWithDiscount'
 import imageEmpty from '../assets/empty_cart.webp'
+import {Truck,ShoppingBag, FileText} from 'lucide-react'
 
-const DisplayCartItem = ({close}) => {
-    const { notDiscountTotalPrice, totalPrice ,totalQty} = useGlobalContext()
-    const cartItem  = useSelector(state => state.cartItem.cart)
+const DisplayCartItem = ({ close }) => {
+    const { notDiscountTotalPrice, totalPrice, totalQty } = useGlobalContext()
+    const cartItem = useSelector(state => state.cartItem.cart)
     const guestCart = useSelector(state => state.cartItem.guestCart)
     const user = useSelector(state => state.user)
-    const [isLoggedInUser,setIsLoggedInUser] = useState(false)
+    const [isLoggedInUser, setIsLoggedInUser] = useState(false)
     const navigate = useNavigate()
 
-    // Calculate guest cart totals
     let guestTotalPrice = 0;
     let guestNotDiscountTotalPrice = 0;
     let guestTotalQty = 0;
+
     if (!user._id) {
         guestTotalQty = guestCart.reduce((sum, item) => sum + (item.quantity || 0), 0);
         guestTotalPrice = guestCart.reduce((sum, item) => {
@@ -36,23 +37,20 @@ const DisplayCartItem = ({close}) => {
         }, 0);
     }
 
-    const redirectToCheckoutPage = ()=>{
-        if(user?._id){
-           setIsLoggedInUser(true)
+    const redirectToCheckoutPage = () => {
+        if (user?._id) {
+            setIsLoggedInUser(true)
             navigate("/checkout")
-            if(close){
+            if (close) {
                 close()
             }
             return
         }
-        setIsLoggedInUser(false)  
-        navigate("/login") ;
+        setIsLoggedInUser(false)
+        navigate("/login");
         close();
-
-       
     }
 
-    // Use correct cart and totals
     const isLoggedIn = !!user._id;
     const displayCart = isLoggedIn ? cartItem : guestCart;
     const displayTotalPrice = isLoggedIn ? totalPrice : guestTotalPrice;
@@ -60,121 +58,113 @@ const DisplayCartItem = ({close}) => {
     const displayTotalQty = isLoggedIn ? totalQty : guestTotalQty;
 
     return (
-    <section className='bg-neutral-900 fixed top-0 bottom-0 right-0 left-0 bg-opacity-70 z-50'>
-        <div className='bg-white w-full max-w-sm min-h-screen max-h-screen ml-auto'>
-            <div className='flex items-center p-4 shadow-md gap-3 justify-between'>
-                <h2 className='font-semibold'>Cart</h2>
+       <section className="bg-black/60 fixed inset-0 z-50 font-[Inter]">
+  <div className="bg-white w-full max-w-sm h-full ml-auto flex flex-col shadow-2xl rounded-l-2xl overflow-hidden">
+    <div className="flex items-center justify-between px-4 py-3 border-b bg-gray-50">
+      <h2 className="text-lg font-semibold text-gray-800">My Cart</h2>
+      <button onClick={() => { if (close) close(); navigate("/"); }}>
+        <IoClose size={24} className="text-gray-600 hover:text-red-500 transition" />
+      </button>
+    </div>
 
-
-                {/* this code is used when we want to close the cart  */}
-            
-                <button  onClick={() => {
-                     if (close) close(); 
-                          // Close the cart  and then navigate to the home page "/"
-                          navigate("/");  }}    // Navigate to home  
-                  >
-                     <IoClose size={25} />
-                </button>              
+    <div className="flex-1 overflow-y-auto bg-gray-50 px-4 py-3 space-y-4">
+      {
+        displayCart.length > 0 ? (
+          <>
+            <div className="flex justify-between items-center bg-green-100 text-green-800 px-4 py-2 rounded-xl text-sm font-medium">
+              <span>Your total savings</span>
+              <span>{DisplayPriceInRupees(displayNotDiscountTotalPrice - displayTotalPrice)}</span>
             </div>
 
-            <div className='min-h-[75vh] lg:min-h-[80vh] h-full max-h-[calc(100vh-150px)] bg-blue-50 p-2 flex flex-col gap-4'>
-                {/***display items */}
-                {
-                    displayCart[0] ? (
-                        <>
-                            <div className='flex items-center justify-between px-4 py-2 bg-blue-100 text-blue-500 rounded-full'>
-                                    <p>Your total savings</p>
-                                    <p>{DisplayPriceInRupees(displayNotDiscountTotalPrice - displayTotalPrice )}</p>
-                            </div>
-                            <div className='bg-white rounded-lg p-4 grid gap-5 overflow-auto'>
-                                    {
-                                        displayCart[0] && (
-                                            displayCart.map((item,index)=>{
-                                                // For guest cart, item is the product; for logged-in, item.productId is the product
-                                                const product = isLoggedIn ? item.productId : item;
-                                                return(
-                                                    <div key={(product?._id || index)+"cartItemDisplay"} className='flex  w-full gap-4'>
-                                                        <div className='w-16 h-16 min-h-16 min-w-16 bg-red-500 border rounded'>
-                                                            <img
-                                                                src={product?.image?.[0]}
-                                                                className='object-scale-down'
-                                                            />
-                                                        </div>
-                                                        <div className='w-full max-w-sm text-xs'>
-                                                            <p className='text-xs text-ellipsis line-clamp-2'>{product?.name}</p>
-                                                            <p className='text-neutral-400'>{product?.unit}</p>
-                                                            <p className='font-semibold'>{DisplayPriceInRupees(pricewithDiscount(product?.price,product?.discount))}</p>
-                                                        </div>
-                                                        <div>
-                                                            <AddToCartButton data={product}/>
-                                                        </div>
-                                                    </div>
-                                                )
-                                            })
-                                        )
-                                    }
-                            </div>
-                            <div className='bg-white p-4'>
-                                <h3 className='font-semibold'>Bill details</h3>
-                                <div className='flex gap-4 justify-between ml-1'>
-                                    <p>Items total</p>
-                                    <p className='flex items-center gap-2'><span className='line-through text-neutral-400'>{DisplayPriceInRupees(displayNotDiscountTotalPrice)}</span><span>{DisplayPriceInRupees(displayTotalPrice)}</span></p>
-                                </div>
-                                <div className='flex gap-4 justify-between ml-1'>
-                                    <p>Quntity total</p>
-                                    <p className='flex items-center gap-2'>{displayTotalQty} item</p>
-                                </div>
-                                <div className='flex gap-4 justify-between ml-1'>
-                                    <p>Delivery Charge</p>
-                                    <p className='flex items-center gap-2'>Free</p>
-                                </div>
-                                <div className='font-semibold flex items-center justify-between gap-4'>
-                                    <p >Grand total</p>
-                                    <p>{DisplayPriceInRupees(displayTotalPrice)}</p>
-                                </div>
-                            </div>
-                        </>
-                    ) : (
-                        <div className='bg-white flex flex-col justify-center items-center'>
-                            <img
-                                src={imageEmpty}
-                                className='w-full h-full object-scale-down' 
-                            />
-                            <Link onClick={close} to={"/"} className='block bg-green-600 px-4 py-2 text-white rounded'>Shop Now</Link>
-                        </div>
-                    )
-                }
-                
-            </div>
-
-            {
-               displayCart[0] && (
-                <div className='p-2'>
-                  <div className='bg-green-700 text-neutral-100 px-4 font-bold text-base py-4 static bottom-3 rounded flex items-center gap-4 justify-between'>
-                    <div>
-                      {DisplayPriceInRupees(displayTotalPrice)}
+            <div className="bg-white p-4 rounded-2xl shadow space-y-4">
+              {
+                displayCart.map((item, index) => {
+                  const product = isLoggedIn ? item.productId : item;
+                  return (
+                    <div key={(product?._id || index) + "cartItemDisplay"} className="flex gap-3 items-start">
+                      <div className="w-16 h-16 bg-gray-100 border rounded-xl overflow-hidden flex-shrink-0">
+                        <img
+                          src={product?.image?.[0]}
+                          alt={product?.name}
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                      <div className="flex-grow space-y-1 text-sm">
+                        <p className="font-medium text-gray-900 line-clamp-2">{product?.name}</p>
+                        <p className="text-gray-500">{product?.unit}</p>
+                        <p className="font-semibold text-black">{DisplayPriceInRupees(pricewithDiscount(product?.price, product?.discount))}</p>
+                      </div>
+                      <AddToCartButton data={product} size="sm" />
                     </div>
-                    {
-                      isLoggedIn ? (
-                        <button onClick={redirectToCheckoutPage} className='flex items-center gap-1'>
-                          Proceed
-                          <span><FaCaretRight/></span>
-                        </button>
-                      ) : (
-                        <button onClick={redirectToCheckoutPage} className='flex items-center gap-1'>
-                         Login to Proceed 
-                          <span><FaCaretRight/></span>
-                        </button>
-                      )
-                    }
-                  </div>
+                  );
+                })
+              }
+            </div>
+
+            <div className="bg-white p-4 rounded-2xl shadow space-y-3 text-sm">
+              <h3 className="font-bold text-gray-800 mb-2">Bill Details</h3>
+
+              <div className="flex items-center justify-between text-gray-600">
+                <div className="flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  <span>Items total</span>
                 </div>
-              )
-            }
-            
+                <span className="flex items-center gap-2">
+                  <s className="text-gray-400">{DisplayPriceInRupees(displayNotDiscountTotalPrice)}</s>
+                  <span>{DisplayPriceInRupees(displayTotalPrice)}</span>
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between text-gray-600">
+                <div className="flex items-center gap-2">
+                  <ShoppingBag className="w-4 h-4 text-green-600" />
+                  <span>Quantity</span>
+                </div>
+                <span>{displayTotalQty} item</span>
+              </div>
+
+              <div className="flex items-center justify-between text-gray-600">
+                <div className="flex items-center gap-2">
+                  <Truck className="w-4 h-4 text-green-600" />
+                  <span>Delivery Charge</span>
+                </div>
+                <span className="text-green-600 font-medium">Free</span>
+              </div>
+
+              <div className="flex justify-between items-center font-semibold text-gray-800 text-base border-t pt-2 mt-2">
+                <span>Grand total</span>
+                <span>{DisplayPriceInRupees(displayTotalPrice)}</span>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-10 text-center">
+            <img src={imageEmpty} className="w-40 h-40 object-contain mb-4" alt="Empty cart" />
+            <Link onClick={close} to="/" className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-full font-medium transition">
+              Shop Now
+            </Link>
+          </div>
+        )
+      }
+    </div>
+
+    {
+      displayCart.length > 0 && (
+        <div className="p-4 border-t bg-white">
+          <div className="bg-green-700 hover:bg-green-800 text-white px-4 py-3 rounded-xl flex justify-between items-center font-semibold text-base transition">
+            <span>{DisplayPriceInRupees(displayTotalPrice)}</span>
+            <button onClick={redirectToCheckoutPage} className="flex items-center gap-1">
+              {isLoggedIn ? "Proceed" : "Login to Proceed"}
+              <FaCaretRight />
+            </button>
+          </div>
         </div>
-    </section>
-  )
+      )
+    }
+  </div>
+</section>
+
+    )
 }
 
 export default DisplayCartItem

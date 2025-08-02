@@ -1,114 +1,103 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { FaRegEyeSlash } from "react-icons/fa6";
-import { FaRegEye } from "react-icons/fa6";
-import toast from 'react-hot-toast';
-import Axios from '../utils/Axios';
-import SummaryApi from '../common/SummaryApi';
-import AxiosToastError from '../utils/AxiosToastError';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
+import Axios from '../utils/Axios'
+import SummaryApi from '../common/SummaryApi'
+import AxiosToastError from '../utils/AxiosToastError'
 
 const OtpVerification = () => {
-    const [data, setData] = useState(["","","","","",""])
+    const [data, setData] = useState(["", "", "", "", "", ""])
     const navigate = useNavigate()
     const inputRef = useRef([])
     const location = useLocation()
 
-    console.log("location",location)
-
-    useEffect(()=>{
-        if(!location?.state?.email){
+    useEffect(() => {
+        if (!location?.state?.email) {
             navigate("/forgot-password")
         }
-    },[])
+    }, [])
 
     const valideValue = data.every(el => el)
 
-    const handleSubmit = async(e)=>{
+    const handleSubmit = async (e) => {
         e.preventDefault()
 
         try {
             const response = await Axios({
                 ...SummaryApi.forgot_password_otp_verification,
-                data : {
-                    otp : data.join(""),
-                    email : location?.state?.email
+                data: {
+                    otp: data.join(""),
+                    email: location?.state?.email
                 }
             })
-            
-            if(response.data.error){
+
+            if (response.data.error) {
                 toast.error(response.data.message)
             }
 
-            if(response.data.success){
+            if (response.data.success) {
                 toast.success(response.data.message)
-                setData(["","","","","",""])
-                navigate("/reset-password",{
-                    state : {
-                        data : response.data,
-                        email : location?.state?.email
+                setData(["", "", "", "", "", ""])
+                navigate("/reset-password", {
+                    state: {
+                        data: response.data,
+                        email: location?.state?.email
                     }
                 })
             }
 
         } catch (error) {
-            console.log('error',error)
             AxiosToastError(error)
         }
-
-
-
     }
 
     return (
-        <section className='w-full container mx-auto px-2'>
-            <div className='bg-white my-4 w-full max-w-lg mx-auto rounded p-7'>
-                <p className='font-semibold text-lg'>Enter OTP</p>
-                <form className='grid gap-4 py-4' onSubmit={handleSubmit}>
-                    <div className='grid gap-1'>
-                        <label htmlFor='otp'>Enter Your OTP :</label>
-                        <div className='flex items-center gap-2 justify-between mt-3'>
-                            {
-                                data.map((element,index)=>{
-                                    return(
-                                        <input
-                                            key={"otp"+index}
-                                            type='text'
-                                            id='otp'
-                                            ref={(ref)=>{
-                                                inputRef.current[index] = ref
-                                                return ref 
-                                            }}
-                                            value={data[index]}
-                                            onChange={(e)=>{
-                                                const value =  e.target.value
-                                                console.log("value",value)
+        <section className='min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-white px-4'>
+            <div className='bg-white shadow-xl border border-gray-200 rounded-2xl p-8 w-full max-w-md'>
+                <h2 className='text-2xl font-bold text-green-800 mb-4 text-center'>OTP Verification</h2>
+                <p className='text-gray-600 text-center mb-6'>Enter the 6-digit code sent to your email</p>
 
-                                                const newData = [...data]
-                                                newData[index] = value
-                                                setData(newData)
+                <form className='space-y-6' onSubmit={handleSubmit}>
+                    <div className='flex justify-between gap-2'>
+                        {data.map((element, index) => (
+                            <input
+                                key={"otp" + index}
+                                type='text'
+                                id='otp'
+                                ref={(ref) => {
+                                    inputRef.current[index] = ref
+                                    return ref
+                                }}
+                                value={data[index]}
+                                onChange={(e) => {
+                                    const value = e.target.value
+                                    const newData = [...data]
+                                    newData[index] = value
+                                    setData(newData)
 
-                                                if(value && index < 5){
-                                                    inputRef.current[index+1].focus()
-                                                }
-
-
-                                            }}
-                                            maxLength={1}
-                                            className='bg-blue-50 w-full max-w-16 p-2 border rounded outline-none focus:border-primary-200 text-center font-semibold'
-                                        />
-                                    )
-                                })
-                            }
-                        </div>
-                        
+                                    if (value && index < 5) {
+                                        inputRef.current[index + 1]?.focus()
+                                    }
+                                }}
+                                maxLength={1}
+                                className='w-12 h-12 text-center text-lg font-semibold rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-400'
+                            />
+                        ))}
                     </div>
-             
-                    <button disabled={!valideValue} className={` ${valideValue ? "bg-green-800 hover:bg-green-700" : "bg-gray-500" }    text-white py-2 rounded font-semibold my-3 tracking-wide`}>Verify OTP</button>
 
+                    <button
+                        disabled={!valideValue}
+                        className={`w-full py-2 rounded-lg font-semibold text-white transition ${
+                            valideValue ? "bg-green-700 hover:bg-green-800" : "bg-gray-400 cursor-not-allowed"
+                        }`}
+                    >
+                        Verify OTP
+                    </button>
                 </form>
 
-                <p>
-                    Already have account? <Link to={"/login"} className='font-semibold text-green-700 hover:text-green-800'>Login</Link>
+                <p className='text-sm text-center text-gray-600 mt-6'>
+                    Already have an account?{" "}
+                    <Link to={"/login"} className='font-semibold text-green-700 hover:text-green-800'>Login</Link>
                 </p>
             </div>
         </section>
@@ -116,6 +105,3 @@ const OtpVerification = () => {
 }
 
 export default OtpVerification
-
-
-
