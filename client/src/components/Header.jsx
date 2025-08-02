@@ -35,41 +35,51 @@ const Header = ({ openCartSection }) => {
     <header className="h-16 lg:h-20 sticky flex items-top justify-top top-0 z-50 bg-white border-b shadow-sm">
       {
         !(isSearchPage && isMobile) && (
-          <div className="container mx-auto flex items-center justify-between">
+         <div className="container mx-auto flex items-center justify-between lg:items-center lg:justify-evenly">
             {/* Logo + Home */}
-            <div className="flex items-center gap-6">
+            <div className=" flex items-center gap-6">
               <Link to="/" className="flex items-center">
                 <img
                   src={logo}
                   alt="logo"
                   className="hidden lg:block w-[250px] h-auto"
                 />
-                <img
-                  src={logo}
-                  alt="logo"
-                  className="lg:hidden w-[160px] h-auto "
-                />
               </Link>
               <button
                 onClick={handleHomeClick}
                 className="flex items-center gap-2 text-green-800 hover:text-green-700 px-3 py-2 rounded-md hover:bg-green-100 transition"
-              >
+              > 
+              {/* <div className='hidden lg:block'> */}
                 <Home size={22} />
+
+              {/* </div> */}
                 <span className="hidden lg:inline text-sm font-medium">Home</span>
               </button>
             </div>
-
+               
+          <div className='lg:hidden bg-blue=500 flex conatainer mx-auto items-center justify-between w-screen w'>
+            {/* <div className='lg:hidden '>
+                <Home size={22} />
+            </div> */}
+               <Search className /> 
+                  <button className="text-neutral-600 lg:hidden flex items-center" onClick={handleMobileUser}>
+                  <div className='pl-2'>
+                   <UserRound size={26} />
+                </div>
+              </button>
+          </div>
             {/* Search (Desktop) */}
             <div className="hidden lg:block w-full max-w-xl">
               <Search />
+            </div>
+            {/* Search  Mobile */}
+            <div className="lg:hidden w-full max-w-md">
             </div>
 
             {/* User + Cart */}
             <div className="flex items-center gap-4">
               {/* Mobile User Icon */}
-              <button className="text-neutral-600 lg:hidden flex items-center" onClick={handleMobileUser}>
-                <UserRound size={26} />
-              </button>
+          
 
               {/* Desktop User + Cart */}
               <div className="hidden lg:flex items-center gap-5">
@@ -125,10 +135,6 @@ const Header = ({ openCartSection }) => {
         )
       }
 
-      {/* Search (Mobile) */}
-      <div className="container mx-auto px-4 py-2 lg:hidden">
-        <Search />
-      </div>
     </header>
   )
 }

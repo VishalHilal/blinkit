@@ -18,7 +18,7 @@ const CardProduct = ({ data }) => {
   return (
     <div
       onClick={handleProductClick}
-      className="min-w-[250px] bg-white rounded-2xl shadow hover:shadow-lg transition-all cursor-pointer p-3 space-y-2"
+      className="min-w-[250px] rounded-2xl border shadow-xl overflow-hidden hover:shadow-lg transition-all cursor-pointer p-3 space-y-2"
     >
       {/* Discount Banner */}
       <div className="relative">

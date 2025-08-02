@@ -69,7 +69,7 @@ const CategoryWiseProductDisplay = ({ id, name }) => {
       <div className="relative">
         <div
           ref={containerRef}
-          className="flex gap-4 md:gap-6 lg:gap-8 overflow-x-auto scroll-smooth scrollbar-none px-4"
+          className="flex gap-4 md:gap-6 lg:gap-8 overflow scroll-hidden-smooth scrollbar-none px-4"
         >
           {loading
             ? loadingCardNumber.map((_, index) => (

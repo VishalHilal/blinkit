@@ -65,12 +65,16 @@ function App() {
 
   return (
     <GlobalProvider>
-      <div className="flex flex-col min-h-screen bg-gray-50 text-gray-900 transition-colors">
+      <div className="flex flex-col min-h-screen overflow-hidden text-blue-900 transition-colors">
         <Header openCartSection={setOpenCartSection} />
 
-        <main className="flex-1 min-h-[78vh] px-2 sm:px-4 md:px-6 pt-2">
-          <Outlet />
-        </main>
+      <main className="flex-1 min-h-[calc(100vh-5rem-4rem)] pt-2">
+  <div className="flex flex-col h-full w-full">
+    <Outlet />
+  </div>
+</main>
+
+
 
         <Footer />
       </div>
