@@ -22,9 +22,18 @@ const DisplayCartItem = ({close}) => {
     let guestNotDiscountTotalPrice = 0;
     let guestTotalQty = 0;
     if (!user._id) {
-        guestTotalQty = guestCart.reduce((sum, item) => sum + item.quantity, 0);
-        guestTotalPrice = guestCart.reduce((sum, item) => sum + pricewithDiscount(item.price, item.discount) * item.quantity, 0);
-        guestNotDiscountTotalPrice = guestCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        guestTotalQty = guestCart.reduce((sum, item) => sum + (item.quantity || 0), 0);
+        guestTotalPrice = guestCart.reduce((sum, item) => {
+            const price = item.price || 0;
+            const discount = item.discount || 0;
+            const quantity = item.quantity || 0;
+            return sum + pricewithDiscount(price, discount) * quantity;
+        }, 0);
+        guestNotDiscountTotalPrice = guestCart.reduce((sum, item) => {
+            const price = item.price || 0;
+            const quantity = item.quantity || 0;
+            return sum + (price * quantity);
+        }, 0);
     }
 
     const redirectToCheckoutPage = ()=>{

@@ -8,8 +8,12 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import fetchUserDetails from '../utils/fetchUserDetails'
 import { useDispatch } from 'react-redux'
 import { setUserDetails } from '../store/userSlice'
+import { useGlobalContext } from '../provider/GlobalProvider'
+
 
 const Login = () => {
+
+    const {fetchCartItem} = useGlobalContext();
     const [data, setData] = useState({
         email: "",
         password: "",
@@ -38,6 +42,7 @@ const Login = () => {
 
             if (response.data.success) {
                 toast.success(response.data.message)
+                await fetchCartItem();
                 localStorage.setItem('accesstoken', response.data.data.accesstoken)
                 localStorage.setItem('refreshToken', response.data.data.refreshToken)
 

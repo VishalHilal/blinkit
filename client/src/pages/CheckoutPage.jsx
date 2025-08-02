@@ -50,7 +50,7 @@ const CheckoutPage = () => {
           if(responseData.success){
               toast.success(responseData.message)
               if(fetchCartItem){
-                fetchCartItem()
+                await fetchCartItem()
               }
               if(fetchOrder){
                 fetchOrder()
@@ -210,9 +210,9 @@ const CheckoutPage = () => {
                           cartItems={cartItemsList}
                           user={user}
                           address={addressList[selectAddress]}
-                          onSuccess={() => {
-                            if (fetchCartItem) fetchCartItem();
-                            if (fetchOrder) fetchOrder();
+                          onSuccess={async () => {
+                            if (fetchCartItem) await fetchCartItem();
+                            if (fetchOrder) await fetchOrder();
                           }}
                         />
                       )}
@@ -222,9 +222,9 @@ const CheckoutPage = () => {
                           amount={totalPrice}
                           addressId={addressList[selectAddress]?._id}
                           cartItems={cartItemsList}
-                          onSuccess={() => {
-                            if (fetchCartItem) fetchCartItem();
-                            if (fetchOrder) fetchOrder();
+                          onSuccess={async () => {
+                            if (fetchCartItem) await fetchCartItem();
+                            if (fetchOrder) await fetchOrder();
                           }}
                         />
                       )}

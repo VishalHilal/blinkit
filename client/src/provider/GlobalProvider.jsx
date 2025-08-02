@@ -2,7 +2,7 @@ import { createContext,useContext, useEffect, useState } from "react";
 import Axios from "../utils/Axios";
 import SummaryApi from "../common/SummaryApi";
 import { useDispatch, useSelector } from "react-redux";
-import { handleAddItemCart } from "../store/cartProduct";
+import { handleAddItemCart, initializeGuestCartFromStorage } from "../store/cartProduct";
 import AxiosToastError from "../utils/AxiosToastError";
 import toast from "react-hot-toast";
 import { pricewithDiscount } from "../utils/PriceWithDiscount";
@@ -15,11 +15,12 @@ export const useGlobalContext = ()=> useContext(GlobalContext)
 
 const GlobalProvider = ({children}) => {
      const dispatch = useDispatch()
+     const [cartLoading, setCartLoading] = useState(true); // add this
      const [totalPrice,setTotalPrice] = useState(0)
      const [notDiscountTotalPrice,setNotDiscountTotalPrice] = useState(0)
     const [totalQty,setTotalQty] = useState(0)
-    const cartItem = useSelector(state => state.cartItem.cart)
-    const guestCart = useSelector(state => state.cartItem.guestCart)
+    const cartItem = useSelector(state => state.cartItem.cart) || []
+    const guestCart = useSelector(state => state.cartItem.guestCart) || []
     const user = useSelector(state => state?.user)
 
     // Check if user is authenticated
@@ -30,11 +31,12 @@ const GlobalProvider = ({children}) => {
     };
 
     const fetchCartItem = async()=>{
-
         if (!isAuthenticated()) {
-            return;
+          setCartLoading(false);
+          return;
         }
         try {
+          setCartLoading(true);
           const response = await Axios({
             ...SummaryApi.getCartItem
           })
@@ -46,6 +48,8 @@ const GlobalProvider = ({children}) => {
     
         } catch (error) {
           console.log(error)
+        }finally{
+          setCartLoading(false);
         }
     }
 
@@ -64,14 +68,16 @@ const GlobalProvider = ({children}) => {
           const { data : responseData } = response
 
           if(responseData.success){
-              fetchCartItem()
+             await fetchCartItem()
               return responseData
           }
       } catch (error) {
+        console.error("Failed to update cart item:", error);
         AxiosToastError(error)
         return error
       }
     }
+    
     const deleteCartItem = async(cartId)=>{
         if (!isAuthenticated()) {
             return;
@@ -87,7 +93,7 @@ const GlobalProvider = ({children}) => {
 
           if(responseData.success){
             toast.success(responseData.message)
-            fetchCartItem()
+            await fetchCartItem()
           }
       } catch (error) {
          AxiosToastError(error)
@@ -95,26 +101,47 @@ const GlobalProvider = ({children}) => {
     }
 
     useEffect(()=>{
+      // Reset totals when user state changes
+      if (!user?._id) {
+        setTotalQty(0);
+        setTotalPrice(0);
+        setNotDiscountTotalPrice(0);
+      }
+      
       if (user?._id) {
         // Logged in: use backend cart
         const qty = cartItem.reduce((preve,curr)=>{
-            return preve + curr.quantity
+            return preve + (curr.quantity || 0)
         },0)
         const tPrice = cartItem.reduce((preve,curr)=>{
-            const priceAfterDiscount = pricewithDiscount(curr?.productId?.price,curr?.productId?.discount)
-            return preve + (priceAfterDiscount * curr.quantity)
+            const price = curr?.productId?.price || 0;
+            const discount = curr?.productId?.discount || 0;
+            const quantity = curr.quantity || 0;
+            const priceAfterDiscount = pricewithDiscount(price, discount)
+            return preve + (priceAfterDiscount * quantity)
         },0)
         const notDiscountPrice = cartItem.reduce((preve,curr)=>{
-          return preve + (curr?.productId?.price * curr.quantity)
+          const price = curr?.productId?.price || 0;
+          const quantity = curr.quantity || 0;
+          return preve + (price * quantity)
         },0)
         setTotalQty(qty)
         setTotalPrice(tPrice)
         setNotDiscountTotalPrice(notDiscountPrice)
       } else {
         // Guest: use guestCart
-        const qty = guestCart.reduce((preve, curr) =>{ return preve + curr.quantity}, 0);
-        const tPrice = guestCart.reduce((preve, curr) => {return preve + pricewithDiscount(curr.price, curr.discount) * curr.quantity}, 0);
-        const notDiscountPrice = guestCart.reduce((preve, curr) => {return preve + (curr.price * curr.quantity)}, 0);
+        const qty = guestCart.reduce((preve, curr) =>{ return preve + (curr.quantity || 0)}, 0);
+        const tPrice = guestCart.reduce((preve, curr) => {
+            const price = curr.price || 0;
+            const discount = curr.discount || 0;
+            const quantity = curr.quantity || 0;
+            return preve + pricewithDiscount(price, discount) * quantity
+        }, 0);
+        const notDiscountPrice = guestCart.reduce((preve, curr) => {
+            const price = curr.price || 0;
+            const quantity = curr.quantity || 0;
+            return preve + (price * quantity)
+        }, 0);
         setTotalQty(qty);
         setTotalPrice(tPrice);
         setNotDiscountTotalPrice(notDiscountPrice);
@@ -161,13 +188,20 @@ const GlobalProvider = ({children}) => {
       }
     }
 
-        useEffect(() => {
-          if (isAuthenticated()) {
-             fetchCartItem()
-             fetchAddress()
-             fetchOrder()
-          }
-        }, [user])
+    // Initialize guest cart from localStorage on app start
+    useEffect(() => {
+        dispatch(initializeGuestCartFromStorage());
+    }, [dispatch]);
+
+    useEffect( () => {
+        if (isAuthenticated()) {
+            fetchCartItem()
+            fetchAddress()
+            fetchOrder()
+        } else {
+            setCartLoading(false);
+        }
+    }, [user])
 
     return(
         <GlobalContext.Provider value={{
@@ -178,7 +212,8 @@ const GlobalProvider = ({children}) => {
             totalPrice,
             totalQty,
             notDiscountTotalPrice,
-            fetchOrder
+            fetchOrder,
+            cartLoading
         }}>
             {children}
         </GlobalContext.Provider>

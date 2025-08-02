@@ -22,18 +22,25 @@ const loadGuestCartFromStorage = () => {
 
 const cartSlice = createSlice({
     name: "cartItem",
-    initialState: initialState,
+    initialState: {
+        ...initialState,
+        guestCart: loadGuestCartFromStorage() // Initialize guest cart from localStorage
+    },
     reducers: {
         handleAddItemCart: (state, action) => {
             state.cart = [...action.payload];
         },
         // Guest cart actions
         addGuestCartItem: (state, action) => {
-            const exists = state.guestCart.find(item => item._id === action.payload._id);
-            if (!exists) {
+            const existingItem = state.guestCart.find(item => item._id === action.payload._id);
+            if (existingItem) {
+                // If item exists, increment quantity
+                existingItem.quantity += 1;
+            } else {
+                // If item doesn't exist, add it with quantity 1
                 state.guestCart.push({ ...action.payload, quantity: 1 });
-                saveGuestCartToStorage(state.guestCart);
             }
+            saveGuestCartToStorage(state.guestCart);
         },
         removeGuestCartItem: (state, action) => {
             state.guestCart = state.guestCart.filter(item => item._id !== action.payload);
@@ -52,8 +59,7 @@ const cartSlice = createSlice({
             saveGuestCartToStorage([]);
         },
         clearUserCart:(state) =>{
-            state.userCart = [];
-
+            state.cart = [];
         },
         initializeGuestCartFromStorage: (state) => {
             state.guestCart = loadGuestCartFromStorage();
