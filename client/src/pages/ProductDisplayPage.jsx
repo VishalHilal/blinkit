@@ -166,34 +166,34 @@ const ProductDisplayPage = () => {
   }, [data.image]); // Re-run when images change
 
   return (
-    <section className='container mx-auto p-4 grid lg:grid-cols-2 gap-6'>
+   <section className='container mx-auto p-4 grid grid-cols-1 lg:grid-cols-2 gap-6'>
+  {/* Left: Image section */}
   <div className='space-y-4'>
     {/* Main Image */}
-    <div className='bg-white rounded-xl overflow-hidden shadow-md min-h-56 max-h-56 lg:min-h-[65vh] lg:max-h-[65vh]'>
+    <div className='bg-white rounded-xl overflow-hidden shadow-md min-h-56 max-h-56 sm:min-h-[40vh] sm:max-h-[40vh] lg:min-h-[65vh] lg:max-h-[65vh] flex items-center justify-center'>
       {data.image[image] && (
         <img
           src={data.image[image]}
-          className='w-full h-full object-contain'
+          className='w-4/5 lg:w-fit h-full object-contain'
           alt={data.name}
         />
       )}
     </div>
 
-    {/* Image dots */}
+    {/* Image Dots */}
     <div className='flex items-center justify-center gap-2'>
       {data.image.map((img, index) => (
         <button
           key={img + index + "dot"}
           onClick={() => setImage(index)}
-          className={`w-3 h-3 lg:w-4 lg:h-4 rounded-full transition-all duration-200 ${
+          className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full transition-all duration-200 ${
             index === image ? "bg-primary-500 scale-125" : "bg-gray-300 hover:bg-gray-400"
           }`}
-          aria-label={`View image ${index + 1}`}
         />
       ))}
     </div>
 
-    {/* Horizontal thumbnails */}
+    {/* Thumbnail Strip */}
     <div className='relative'>
       <div
         ref={imageContainer}
@@ -234,7 +234,7 @@ const ProductDisplayPage = () => {
       </div>
     </div>
 
-    {/* Description (Desktop) */}
+    {/* Description Desktop */}
     <div className='hidden lg:grid gap-4'>
       {data.description && (
         <div>
@@ -272,14 +272,14 @@ const ProductDisplayPage = () => {
     </div>
   </div>
 
-  {/* Right section */}
-  <div className='p-4 space-y-6'>
+  {/* Right: Info section */}
+  <div className='p-1 sm:p-2 md:p-4 space-y-6'>
     <div className='flex items-center gap-2'>
       <span className='bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium'>10 Min</span>
     </div>
 
     <div>
-      <h1 className='text-2xl font-bold text-gray-900'>{data.name}</h1>
+      <h1 className='text-xl sm:text-2xl font-bold text-gray-900'>{data.name}</h1>
       <p className='text-gray-500 text-base'>{data.unit}</p>
     </div>
 
@@ -287,8 +287,8 @@ const ProductDisplayPage = () => {
 
     <div>
       <p className='text-gray-700'>Price</p>
-      <div className='flex items-center gap-3 mt-1'>
-        <span className='bg-green-50 text-green-700 border border-green-600 px-4 py-2 rounded text-xl font-semibold'>
+      <div className='flex items-center gap-3 mt-1 flex-wrap'>
+        <span className='bg-green-50 text-green-700 border border-green-600 px-4 py-2 rounded text-lg sm:text-xl font-semibold'>
           {DisplayPriceInRupees(pricewithDiscount(data.price, data.discount))}
         </span>
         {data.discount && (
@@ -303,12 +303,12 @@ const ProductDisplayPage = () => {
     {data.stock === 0 ? (
       <p className='text-red-600 font-semibold'>Out of Stock</p>
     ) : (
-      <div className='pt-4'>
+      <div className='pt-2 sm:pt-4'>
         <AddToCartButton data={data} />
       </div>
     )}
 
-    {/* Why shop section */}
+    {/* Why Shop */}
     <div>
       <h3 className='font-semibold text-xl mb-3'>Why shop from Binkeet?</h3>
       {[image1, image2, image3].map((img, idx) => {
@@ -316,20 +316,20 @@ const ProductDisplayPage = () => {
           { title: 'Superfast Delivery', desc: 'Delivered in minutes from dark stores near you.' },
           { title: 'Best Prices & Offers', desc: 'Exclusive deals direct from manufacturers.' },
           { title: 'Wide Assortment', desc: 'Choose from 5000+ products across categories.' }
-        ]
+        ];
         return (
           <div className='flex items-start gap-4 mb-4' key={`why-${idx}`}>
-            <img src={img} alt={captions[idx].title} className='w-16 h-16 object-contain' />
+            <img src={img} alt={captions[idx].title} className='w-14 h-14 sm:w-16 sm:h-16 object-contain' />
             <div>
               <h4 className='font-medium text-gray-800'>{captions[idx].title}</h4>
               <p className='text-sm text-gray-600'>{captions[idx].desc}</p>
             </div>
           </div>
-        )
+        );
       })}
     </div>
 
-    {/* Mobile Description Toggle */}
+    {/* Mobile Description */}
     <div className='lg:hidden'>
       <button
         onClick={() => setShowMobileDescription(!showMobileDescription)}
@@ -350,8 +350,7 @@ const ProductDisplayPage = () => {
               .map(([key, val]) => ({
                 label: key,
                 value: Array.isArray(val) ? val.join(', ') : val
-              }))
-          ]
+              }))]
             .filter(Boolean)
             .map(({ label, value }, i) => (
               <div key={`mobile-detail-${i}`} className='mb-2'>
@@ -364,6 +363,7 @@ const ProductDisplayPage = () => {
     </div>
   </div>
 </section>
+
 
   )
 }

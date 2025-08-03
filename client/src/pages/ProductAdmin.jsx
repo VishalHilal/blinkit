@@ -4,7 +4,7 @@ import AxiosToastError from '../utils/AxiosToastError'
 import Axios from '../utils/Axios'
 import Loading from '../components/Loading'
 import ProductCardAdmin from '../components/ProductCardAdmin'
-import { IoSearchOutline } from "react-icons/io5";
+import { IoSearchOutline } from "react-icons/io5"
 
 const ProductAdmin = () => {
   const [productData, setProductData] = useState([])
@@ -71,18 +71,16 @@ const ProductAdmin = () => {
       }
     }, 300)
 
-    return () => {
-      clearTimeout(interval)
-    }
+    return () => clearTimeout(interval)
   }, [search])
 
   return (
     <section className="w-full">
       {/* Top Bar */}
-      <div className="p-4 bg-white shadow flex flex-col sm:flex-row sm:items-center gap-4">
+      <div className="p-4 bg-white shadow-sm border-b flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h2 className="text-xl font-semibold text-gray-800">Manage Products</h2>
 
-        <div className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-md w-full sm:w-72 border border-gray-300 focus-within:ring-2 ring-primary-500">
+        <div className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-md w-full sm:w-72 border border-gray-300 focus-within:ring-2 ring-green-500">
           <IoSearchOutline size={20} className="text-gray-500" />
           <input
             type="text"
@@ -98,29 +96,29 @@ const ProductAdmin = () => {
       {loading && <Loading />}
 
       {/* Products Section */}
-      <div className="p-4 bg-gray-50 min-h-[60vh]">
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div className="p-4 flex flex-col gap-4 min-h-[calc(100vh-150px)]">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
           {productData.map((p, index) => (
             <ProductCardAdmin key={p._id || index} data={p} fetchProductData={fetchProductData} />
           ))}
         </div>
 
         {/* Pagination Controls */}
-        <div className="flex items-center justify-between mt-6">
+        <div className="sticky bottom-0 left-0 w-full bg-white border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-2 px-4 py-3 sm:px-8 shadow z-50">
           <button
             onClick={handlePrevious}
-            className="px-4 py-2 bg-white border border-gray-300 rounded hover:bg-gray-100 transition"
+            className="w-full sm:w-auto px-4 py-2 bg-white border border-gray-300 rounded hover:bg-gray-100 transition text-sm font-medium"
           >
             Previous
           </button>
 
-          <span className="text-sm font-medium text-gray-700">
+          <span className="text-sm font-medium text-gray-700 text-center">
             Page {page} of {totalPageCount}
           </span>
 
           <button
             onClick={handleNext}
-            className="px-4 py-2 bg-white border border-gray-300 rounded hover:bg-gray-100 transition"
+            className="w-full sm:w-auto px-4 py-2 bg-white border border-gray-300 rounded hover:bg-gray-100 transition text-sm font-medium"
           >
             Next
           </button>

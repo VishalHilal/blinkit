@@ -81,7 +81,7 @@ export const getProductController = async(request,response)=>{
                     .skip(skip)
                     .limit(limit)
                     .populate('category subCategory'),
-                ProductModel.countDocuments(query)
+                ,ProductModel.countDocuments(query)
             ])
 
             return response.json({

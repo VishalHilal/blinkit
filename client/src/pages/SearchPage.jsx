@@ -7,6 +7,7 @@ import CardProduct from '../components/CardProduct'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useLocation } from 'react-router-dom'
 import noDataImage from '../assets/nothing here yet.webp'
+import Search from '../components/Search'
 
 const SearchPage = () => {
   const [data, setData] = useState([])
@@ -58,6 +59,10 @@ const SearchPage = () => {
   return (
     <section className='bg-gradient-to-br from-slate-50 to-blue-50 min-h-[90vh]'>
       <div className='container mx-auto px-4 py-6'>
+        <div className="lg:hidden fixed top-0 left-0 w-full z-50 bg-white shadow px-4 py-2">
+  <Search />
+</div>
+
         <p className='text-xl font-semibold text-slate-800 mb-4'>
           Search Results: <span className='text-primary-600'>{data.length}</span>
         </p>

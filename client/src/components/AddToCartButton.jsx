@@ -147,14 +147,14 @@ const AddToCartButton = ({ data, size="md" }) => {
         <div className={`flex items-center justify-between ${isSmall ? 'h-8' : 'h-10'} rounded-full bg-green-600 text-white`}>
           <button
             onClick={decreaseQty}
-            className={`px-2 text-lg hover:bg-green-700 rounded-l-full`}
+            className={`px-2 text-lg  rounded-l-full`}
           >
             <FaMinus />
           </button>
-          <span className="text-sm">{qty}</span>
+          <span className="text-sm font-bold">{qty}</span>
           <button
             onClick={increaseQty}
-            className={`px-2 text-lg hover:bg-green-700 rounded-r-full`}
+            className={`px-2 text-lg  rounded-r-full`}
           >
             <FaPlus />
           </button>
@@ -162,7 +162,7 @@ const AddToCartButton = ({ data, size="md" }) => {
       ) : (
         <button
           onClick={handleADDTocart}
-          className={`w-full ${isSmall ? 'h-8 text-xs' : 'h-11 text-sm'} bg-green-600 hover:bg-green-700 text-white font-bold rounded-full px-4`}
+          className={`w-full ${isSmall ? 'h-8 text-xs' : 'h-11 text-sm'} bg-green-600  text-white font-bold rounded-full px-4`}
         >
           {loading ? <Loading /> : 'Add'}
         </button>
