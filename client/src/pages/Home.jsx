@@ -69,7 +69,7 @@ const Home = () => {
         <div className="w-full bg-gradient-to-r from-green-50 to-green-100 rounded-2xl overflow-hidden shadow-md">
           <img
             src={banner}
-            className="w-full h-[450px] hidden lg:block"
+            className="w-full h-[300px] object cover hidden lg:block "
             alt="banner"
           />
 
@@ -92,7 +92,7 @@ const Home = () => {
                   onError={(e) => {
                     e.target.onerror = null;
                     e.target.src =
-                      "https://via.placeholder.com/1080x540?text=Banner+Image";
+                      "https://i.postimg.cc/gkWpM52H/banner.png";
                   }}
                 />
               </div>
