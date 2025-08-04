@@ -44,16 +44,22 @@ https://blinkit-drab.vercel.app
 ## 📸 Screenshots
 
 ### Homepage
-![Homepage](https://via.placeholder.com/800x400/4F46E5/FFFFFF?text=Blinkeet+Homepage)
+![Homepage](https://i.postimg.cc/hPs57Znk/homePage.png)
 
 ### Product Search
-![Product Search](https://via.placeholder.com/800x400/10B981/FFFFFF?text=Smart+Product+Search)
+![Product Search](https://i.postimg.cc/JnRTnjgr/Search-Page.png)
 
 ### Shopping Cart
-![Shopping Cart](https://via.placeholder.com/800x400/F59E0B/FFFFFF?text=Shopping+Cart)
+![Shopping Cart](https://i.postimg.cc/nLjRgHmx/My-CArt.png)
 
 ### Admin Dashboard
-![Admin Dashboard](https://via.placeholder.com/800x400/EF4444/FFFFFF?text=Admin+Dashboard)
+![Admin Dashboard](https://i.postimg.cc/jqPVChLT/admin-Panel.png)
+
+### Checkout Page
+![Checkout Page](https://i.postimg.cc/7ZxjsGwT/checkout-Page.png)
+
+### Upload Product 
+![Upload Product](https://i.postimg.cc/PJJ0X0Vz/upload-Products.png)
 
 ## 🛠️ Tech Stack
 
@@ -127,8 +133,8 @@ blinkit/
 
 1. **Clone the repository**
 
-   git clone https://github.com/yourusername/blinkeet.git
-   cd blinkeet
+   git clone https://github.com/vishal-hilal/Blinkeet.git
+   cd Blinkeet
 
 
 2. **Install dependencies**
